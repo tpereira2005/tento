@@ -1,0 +1,146 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/fraunces/full-italic.css';
+@import '@fontsource-variable/instrument-sans/index.css';
+@import '@fontsource/dm-mono/400.css';
+@import '@fontsource/dm-mono/500.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * Tokens de cor da identidade Tento (direção G). Positivo e negativo diferem em
+ * claridade e são sempre acompanhados de sinal (+/−) e triângulo (▲▼).
+ */
+:root {
+  color-scheme: light;
+  --bg: #f4f1ea; /* papel */
+  --surface: #fbfaf6; /* folha */
+  --surface-2: #f0ece2;
+  --line: #d9d4c7; /* regra */
+  --control: #8f8a7c;
+  --ink: #17191f; /* tinta */
+  --ink-2: #4a4f5c;
+  --pos: #2336c8; /* cobalto */
+  --pos-tint: #dde1fa;
+  --neg: #e0564a; /* coral — marcas */
+  --neg-text: #b0322a; /* carmim — texto */
+  --neg-tint: #f6e4e0;
+  --share-2: #e9a79f;
+  --pill: #17191f;
+  --pill-ink: #f4f1ea;
+  --cta: #2336c8;
+  --cta-ink: #ffffff;
+  --focus: #2336c8;
+  --heat-0: #e9e6dc;
+  --heat-1: #c9d0f5;
+  --heat-2: #93a1ec;
+  --heat-3: #5667dc;
+  --heat-4: #2336c8;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #111318;
+  --surface: #1a1d24;
+  --surface-2: #22262f;
+  --line: #2e323d;
+  --control: #5a5f6c;
+  --ink: #f1eee6;
+  --ink-2: #a9adb8;
+  --pos: #a9b6ff;
+  --pos-tint: rgb(169 182 255 / 0.16);
+  --neg: #f07a6e;
+  --neg-text: #f07a6e;
+  --neg-tint: rgb(240 122 110 / 0.16);
+  --share-2: #7a4a46;
+  --pill: #f1eee6;
+  --pill-ink: #111318;
+  --cta: #2336c8;
+  --cta-ink: #ffffff;
+  --focus: #a9b6ff;
+  --heat-0: #22262f;
+  --heat-1: #2b3566;
+  --heat-2: #3d4eb8;
+  --heat-3: #6f82f0;
+  --heat-4: #a9b6ff;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-control: var(--control);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-pos: var(--pos);
+  --color-pos-tint: var(--pos-tint);
+  --color-neg: var(--neg);
+  --color-neg-text: var(--neg-text);
+  --color-neg-tint: var(--neg-tint);
+  --color-share-2: var(--share-2);
+  --color-pill: var(--pill);
+  --color-pill-ink: var(--pill-ink);
+  --color-cta: var(--cta);
+  --color-cta-ink: var(--cta-ink);
+  --color-heat-0: var(--heat-0);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-sans: 'Instrument Sans Variable', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+
+  --radius-card: 14px;
+  --radius-control: 10px;
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* números em tabelas e rótulos: DM Mono com algarismos tabulares */
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  /* rótulo de secção: mono, maiúsculas espaçadas */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+}

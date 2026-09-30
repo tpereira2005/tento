@@ -1,0 +1,17 @@
+# Hooks de git (instalados automaticamente por `pnpm install`).
+pre-commit:
+  parallel: true
+  commands:
+    dados-reais:
+      run: node scripts/guard-data-files.mjs {staged_files}
+    formato:
+      glob: '*.{ts,tsx,js,mjs,json,css,md,yml}'
+      run: pnpm prettier --check {staged_files}
+    lint:
+      glob: '*.{ts,tsx}'
+      run: pnpm eslint --max-warnings=0 --no-warn-ignored {staged_files}
+
+commit-msg:
+  commands:
+    convencional:
+      run: node scripts/check-commit-msg.mjs {1}

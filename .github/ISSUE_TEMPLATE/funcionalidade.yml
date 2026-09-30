@@ -1,0 +1,26 @@
+name: Funcionalidade
+description: Uma ideia ou melhoria.
+title: 'feat: '
+labels: ['tipo:funcionalidade']
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Que problema resolve
+    validations:
+      required: true
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Proposta
+  - type: textarea
+    id: concluido
+    attributes:
+      label: Critérios de "concluído"
+      placeholder: |
+        - [ ] …
+  - type: dropdown
+    id: prioridade
+    attributes:
+      label: Prioridade
+      options: [P0 — essencial, P1 — completo, P2 — acabamento]

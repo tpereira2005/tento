@@ -1,9 +1,14 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+import type { QueryClient } from '@tanstack/react-query';
+import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router';
 import { t } from '../i18n';
 import { Logo } from '../ui/Logo';
 import { ThemeToggle } from '../ui/ThemeToggle';
 
-export const Route = createRootRoute({
+export interface RouterContext {
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
 });
 

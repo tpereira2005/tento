@@ -17,8 +17,10 @@ const coreBoundaries = {
 const webBoundaries = {
   patterns: [
     {
-      group: ['@/server/*', '../server/*', '../../server/*'],
-      message: 'src/web não importa src/server; usa a API.',
+      group: ['@/server/*', '../server/*', '../../server/*', '../../../server/*'],
+      // Só tipos (os contratos da API); nunca código do servidor no browser.
+      allowTypeImports: true,
+      message: 'src/web não importa código de src/server; usa a API (import type é permitido).',
     },
   ],
 };

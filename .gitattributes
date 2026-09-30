@@ -3,3 +3,4 @@
 *.ico binary
 *.woff2 binary
 *.ttf binary
+tests/fixtures/**/*.csv -text

@@ -10,7 +10,10 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n web,api \"vite\" \"tsx watch src/server/entry/node.ts\"",
+    "dev:web": "vite",
+    "dev:api": "tsx watch src/server/entry/node.ts",
+    "start": "tsx src/server/entry/node.ts --production",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
@@ -24,6 +27,9 @@
     "check": "pnpm lint && pnpm typecheck && pnpm format:check && pnpm test && pnpm build",
     "brand": "node scripts/brand.mjs",
     "prepare": "lefthook install",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx --env-file-if-exists=.env scripts/migrate.ts",
+    "db:seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
     "test:real": "vitest run src/core/csv/real-data.test.ts"
   },
   "dependencies": {

@@ -2,6 +2,14 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-008 · Repositório público, recriado com histórico limpo (2026-09-30)
+
+- **Contexto:** o GitHub Actions deixou de correr no repositório privado (pagamento da conta falhado).
+- **Decisão:** tornar o repositório público. Antes disso, o repositório (com 1 hora) foi apagado e recriado
+  com um histórico novo, sem nomes reais nem detalhes dos CSVs verdadeiros.
+- **Consequências:** os dados de exemplo usam perfis fictícios («Ana», «Rui»); a deteção de segredos com
+  bloqueio no push e os alertas do Dependabot ficam ativos; merges feitos pelo agente com o CI verde.
+
 ## D-007 · TypeScript 6.0 e ESLint 9 em vez das versões mais recentes (2026-09-30)
 
 - **Contexto:** em setembro de 2026 as últimas versões são TypeScript 7.0 (reescrito em Go) e ESLint 10.

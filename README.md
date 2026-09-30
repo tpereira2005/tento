@@ -86,4 +86,5 @@ Pensado para correr em Node ou em Cloudflare Workers sem alterações de código
 
 ## Licença
 
-Projeto pessoal e privado. Todos os direitos reservados.
+Projeto pessoal com código público para consulta. Sem licença de reutilização: todos os direitos reservados.
+Os dados de exemplo (perfis «Ana» e «Rui», valores) são fictícios.

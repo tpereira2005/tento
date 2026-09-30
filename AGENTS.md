@@ -19,7 +19,8 @@ e "meses positivos", nunca "ROI" ou "win rate".
 
 ## Estado atual
 
-Etapa **0 — Fundações** (ver a tabela de etapas no README). Atualiza esta linha no fim de cada etapa.
+Etapas **0 — Fundações** e **1 — Núcleo de domínio** concluídas; a seguir, **2 — BD, API e autenticação**
+(ver a tabela de etapas no README). Atualiza esta linha no fim de cada etapa.
 
 ## Comandos
 
@@ -32,6 +33,7 @@ pnpm test:coverage    # com cobertura
 pnpm e2e              # testes de ponta a ponta com Playwright e axe (faz build e serve em :4173)
 pnpm format           # formata tudo com Prettier
 pnpm brand            # regenera logótipo, ícones e favicon a partir de scripts/brand.mjs
+pnpm test:real        # valida os CSVs reais de TENTO_REAL_CSV_DIR (pasta fora do repo; só local)
 ```
 
 Requisitos: Node 24 (`.nvmrc`), pnpm 10 (`packageManager` no `package.json`).
@@ -73,6 +75,10 @@ Regras garantidas pelo ESLint (`no-restricted-imports`):
 - Tipografia: títulos e números de destaque em Fraunces (`font-display`), interface em Instrument Sans
   (`font-sans`), números em tabelas e rótulos em DM Mono (`.num`, `.eyebrow`).
 - Ficheiros com mais de ~300 linhas são sinal para dividir.
+- Caracteres invisíveis ou tipográficos (espaço inseparável, U+202F, menos U+2212, BOM) escrevem-se sempre
+  como escapes `\uXXXX` no código, nunca literais: o ESLint rejeita espaços irregulares e os diffs ficam
+  ilegíveis. Atenção: algumas ferramentas de agentes convertem escapes em caracteres ao gravar; confirma
+  com `pnpm lint`.
 
 ## Acessibilidade (obrigatória)
 

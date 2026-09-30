@@ -23,7 +23,8 @@
     "e2e": "playwright test",
     "check": "pnpm lint && pnpm typecheck && pnpm format:check && pnpm test && pnpm build",
     "brand": "node scripts/brand.mjs",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "test:real": "vitest run src/core/csv/real-data.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

@@ -42,17 +42,17 @@ e ao longo do tempo.
 
 ## Estado
 
-| Etapa | Âmbito                                                   | Estado      |
-| ----- | -------------------------------------------------------- | ----------- |
-| 0     | Fundações: ferramentas, CI, identidade, componentes base | 🔄 em curso |
-| 1     | Núcleo de domínio: CSV, dinheiro, datas, estatísticas    | ⏳          |
-| 2     | Base de dados, API e autenticação                        | ⏳          |
-| 3     | Estrutura da aplicação e definições                      | ⏳          |
-| 4     | Importação                                               | ⏳          |
-| 5     | Painel                                                   | ⏳          |
-| 6     | Transações e Comparar                                    | ⏳          |
-| 7     | Relatório PDF                                            | ⏳          |
-| 8     | Endurecimento e portabilidade                            | ⏳          |
+| Etapa | Âmbito                                                   | Estado |
+| ----- | -------------------------------------------------------- | ------ |
+| 0     | Fundações: ferramentas, CI, identidade, componentes base | ✅     |
+| 1     | Núcleo de domínio: CSV, dinheiro, datas, estatísticas    | ✅     |
+| 2     | Base de dados, API e autenticação                        | ⏳     |
+| 3     | Estrutura da aplicação e definições                      | ⏳     |
+| 4     | Importação                                               | ⏳     |
+| 5     | Painel                                                   | ⏳     |
+| 6     | Transações e Comparar                                    | ⏳     |
+| 7     | Relatório PDF                                            | ⏳     |
+| 8     | Endurecimento e portabilidade                            | ⏳     |
 
 Detalhe e critérios de "concluído" em [`docs/PLANO.md`](docs/PLANO.md).
 

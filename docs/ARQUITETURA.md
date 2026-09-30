@@ -22,6 +22,19 @@
   `entry/worker.ts` (Cloudflare Workers / ChatGPT Sites).
 - **`src/web`** é uma SPA estática. Os filtros (perfil, casa, período) vivem no URL.
 
+## Módulos de `src/core`
+
+| Módulo      | Responsabilidade       | Funções principais                                                                                           |
+| ----------- | ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `types.ts`  | tipos partilhados      | `Transaction`, `WalletRef`, `IsoDate`, `MonthKey`, `Result`, `netEffect`                                     |
+| `money.ts`  | montantes em cêntimos  | `parseAmount` (pt/en, milhares, sinais), `detectDecimalHint`                                                 |
+| `dates.ts`  | datas ISO em UTC       | `parseDate`, `monthRange`, `addDays`, `isoWeekday`                                                           |
+| `format.ts` | apresentação pt-PT     | `formatCents`, `formatPercent`                                                                               |
+| `csv/`      | importação             | `parseTransactionsCsv` (aliases, separador, BOM, erros por linha), `diffTransactions` (multiset + conflitos) |
+| `stats/`    | estatísticas           | `summarize`, `monthlySeries`, `computeStreaks`, `depositHeatmap`, `breakdown`, `comparePeriods`              |
+| `insights/` | destaques              | `generateInsights` → `{ id, tone, priority, params }` (o texto vem do i18n da web)                           |
+| `charts/`   | geometria dos gráficos | `cumulativeLine` (monótona), `signedBars`, `calendarGrid`, `niceTicks`                                       |
+
 ## Modelo de dados
 
 Ver `docs/PLANO.md` §4. Resumo: `bookmaker` (casa), `profile` (perfil), `wallet` (conta = perfil × casa),

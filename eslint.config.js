@@ -23,6 +23,23 @@ const webBoundaries = {
   ],
 };
 
+// Datas no domínio: só através de src/core/dates.ts (texto ISO); nunca hora local.
+const noDateInCore = [
+  { selector: "NewExpression[callee.name='Date']", message: 'Usa src/core/dates.ts (datas como texto ISO).' },
+  {
+    selector: "MemberExpression[object.name='Date'][property.name='parse']",
+    message: 'Usa parseDate de src/core/dates.ts.',
+  },
+];
+const noLocalTimeGetters = [
+  {
+    selector:
+      'MemberExpression[property.name=/^(getFullYear|getMonth|getDate|getDay|getHours|getMinutes|setFullYear|setMonth|setDate|toLocaleDateString)$/]',
+    message:
+      'Hora local proibida no domínio (bugs de fuso horário). Usa as funções UTC de src/core/dates.ts.',
+  },
+];
+
 export default tseslint.config(
   {
     ignores: [
@@ -67,7 +84,15 @@ export default tseslint.config(
   },
   {
     files: ['src/core/**/*.ts'],
-    rules: { 'no-restricted-imports': ['error', coreBoundaries] },
+    rules: {
+      'no-restricted-imports': ['error', coreBoundaries],
+      'no-restricted-syntax': ['error', ...noDateInCore, ...noLocalTimeGetters],
+    },
+  },
+  {
+    // dates.ts é o único sítio com `Date`, e só em UTC
+    files: ['src/core/dates.ts'],
+    rules: { 'no-restricted-syntax': ['error', ...noLocalTimeGetters] },
   },
   {
     files: ['**/*.test.{ts,tsx}', 'tests/**'],

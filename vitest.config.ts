@@ -12,11 +12,21 @@ export default defineConfig({
     projects: [
       { extends: true, test: { name: 'core', include: ['src/core/**/*.test.ts'], environment: 'node' } },
       { extends: true, test: { name: 'web', include: ['src/web/**/*.test.{ts,tsx}'], environment: 'jsdom' } },
+      { extends: true, test: { name: 'server', include: ['src/server/**/*.test.ts'], environment: 'node' } },
     ],
     coverage: {
       provider: 'v8',
-      include: ['src/core/**', 'src/web/ui/**'],
-      exclude: ['**/*.test.*', '**/index.ts'],
+      include: ['src/core/**', 'src/web/ui/**', 'src/server/**'],
+      exclude: [
+        '**/*.test.*',
+        '**/index.ts',
+        'src/server/db/test-utils.ts',
+        'src/server/db/schema.ts',
+        'src/server/db/seed.ts',
+        'src/server/db/demo-dataset.ts',
+        'src/server/entry/**',
+        'src/server/test-app.ts',
+      ],
       reporter: ['text', 'html'],
     },
   },

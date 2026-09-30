@@ -2,6 +2,17 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-009 · Escritas atómicas com batch e proteção CSRF por origem (2026-10-01)
+
+- **Batch em vez de transação:** as escritas com várias instruções (importar, desfazer) usam `db.batch([...])`,
+  que o libSQL e o D1 suportam; o D1 não tem transações interativas. As inserções vão em blocos de
+  `INSERT_CHUNK_ROWS` linhas (200 no libSQL). **Pendente para a etapa 8:** o D1 aceita no máximo 100
+  parâmetros por instrução, por isso o bloco tem de descer para 9 linhas nesse adaptador.
+- **CSRF:** qualquer POST, PATCH ou DELETE tem de trazer `Origin` igual a `BETTER_AUTH_URL`; o `csrf()` do
+  Hono só verifica formulários, por isso a verificação é própria.
+- **Registo:** fecha quando já existe um utilizador. A verificação não é atómica (dois registos simultâneos
+  no primeiro arranque poderiam passar), o que é aceitável numa aplicação privada de um só dono.
+
 ## D-008 · Repositório público, recriado com histórico limpo (2026-09-30)
 
 - **Contexto:** o GitHub Actions deixou de correr no repositório privado (pagamento da conta falhado).

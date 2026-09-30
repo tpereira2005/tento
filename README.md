@@ -46,7 +46,7 @@ e ao longo do tempo.
 | ----- | -------------------------------------------------------- | ------ |
 | 0     | Fundações: ferramentas, CI, identidade, componentes base | ✅     |
 | 1     | Núcleo de domínio: CSV, dinheiro, datas, estatísticas    | ✅     |
-| 2     | Base de dados, API e autenticação                        | ⏳     |
+| 2     | Base de dados, API e autenticação                        | ✅     |
 | 3     | Estrutura da aplicação e definições                      | ⏳     |
 | 4     | Importação                                               | ⏳     |
 | 5     | Painel                                                   | ⏳     |
@@ -60,8 +60,14 @@ Detalhe e critérios de "concluído" em [`docs/PLANO.md`](docs/PLANO.md).
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:5173
+cp .env.example .env   # define BETTER_AUTH_SECRET (≥ 32 caracteres aleatórios)
+pnpm db:migrate        # cria a base de dados local em data/tento.db
+pnpm dev               # web em http://localhost:5173, API em http://localhost:8787
 ```
+
+Para dados de demonstração (fictícios: Ana/Rui, Casa A/Casa B), define no `.env` as variáveis `DEMO_EMAIL` e
+`DEMO_PASSWORD` (palavra-passe com pelo menos 12 caracteres; nunca a escrevas no código) e corre
+`pnpm db:seed`. O registo público fecha depois de criado o primeiro utilizador.
 
 | Comando      | Faz                                          |
 | ------------ | -------------------------------------------- |

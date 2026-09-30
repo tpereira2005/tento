@@ -49,4 +49,22 @@ Ver `docs/PLANO.md` §4. Resumo: `bookmaker` (casa), `profile` (perfil), `wallet
 | Base de dados | ficheiro SQLite                     | D1                                    | Turso / libSQL   |
 | Autenticação  | Better Auth (email + palavra-passe) | idem, + «Sign in with ChatGPT» (OIDC) | idem             |
 
-Esta secção é completada na etapa 2 (API) e na etapa 8 (migração).
+Esta secção é completada na etapa 8 (migração).
+
+## API (`/api`)
+
+Todas as rotas exceto `/auth/*` e `/setup` exigem sessão. Pedidos que alteram dados exigem o cabeçalho
+`Origin` igual a `BETTER_AUTH_URL` (proteção CSRF). Erros: `{ error: { code, message, details? } }`.
+
+| Rota                                     | Faz                                                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------------- |
+| `/auth/*`                                | Better Auth (email e palavra-passe; registo fecha após o primeiro utilizador)         |
+| `GET /setup`                             | `{ registrationOpen }`                                                                |
+| `GET /me`, `PATCH /me/settings`          | utilizador e preferências                                                             |
+| `/bookmakers`, `/profiles`, `/wallets`   | casas, perfis e contas (listar, criar, renomear, apagar)                              |
+| `POST /imports/preview`, `POST /imports` | pré-visualizar e importar um CSV (lido e comparado sempre no servidor)                |
+| `GET /imports`, `POST /imports/:id/undo` | histórico e desfazer um import                                                        |
+| `/transactions`                          | página com filtros (keyset), criar, editar e apagar à mão                             |
+| `GET /stats/dashboard`                   | resumo, séries, sequências, mapa, repartições e destaques (calculados com `src/core`) |
+
+Desenvolvimento: `pnpm dev` arranca o Vite (5173) e a API (8787); o Vite encaminha `/api` para a API.

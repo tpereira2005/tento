@@ -19,7 +19,8 @@ e "meses positivos", nunca "ROI" ou "win rate".
 
 ## Estado atual
 
-Etapas **0 — Fundações** e **1 — Núcleo de domínio** concluídas; a seguir, **2 — BD, API e autenticação**
+Etapas **0** (fundações), **1** (núcleo de domínio) e **2** (BD, API e autenticação) concluídas; a seguir,
+**3 — Estrutura da aplicação e definições**
 (ver a tabela de etapas no README). Atualiza esta linha no fim de cada etapa.
 
 ## Comandos

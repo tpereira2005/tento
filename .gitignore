@@ -1,0 +1,33 @@
+# dependências e builds
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# testes
+playwright-report/
+test-results/
+blob-report/
+
+# ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# dados reais — NUNCA entram no repositório (ver AGENTS.md)
+*.csv
+*.xlsx
+*.xls
+!tests/fixtures/**/*.csv
+*.sqlite
+*.sqlite3
+*.db
+data/
+
+# sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+*.log

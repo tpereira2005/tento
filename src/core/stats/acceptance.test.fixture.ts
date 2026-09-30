@@ -1,13 +1,13 @@
 import { addMonths } from '../dates';
-import type { IsoDate, MonthKey, Transaction, WalletRef } from '../types';
+import type { IsoDate, Transaction, WalletRef } from '../types';
 
-/** Dados sintéticos do conjunto de aceitação (out 2025 → set 2026), iguais aos das pranchas aprovadas. */
-export const ACCEPTANCE_DEPOSITS_EUR = [300, 285, 460, 320, 410, 240, 345, 390, 280, 420, 315, 515];
-export const ACCEPTANCE_WITHDRAWALS_CENTS = [
-  42000, 20000, 25000, 36500, 25000, 55000, 25000, 25000, 34000, 16000, 35000, 23050,
-];
-export const ACCEPTANCE_FIRST_MONTH = '2025-10' as MonthKey;
-export const ACCEPTANCE_LAST_MONTH = '2026-09' as MonthKey;
+import { DEMO_DEPOSITS_EUR, DEMO_FIRST_MONTH, DEMO_LAST_MONTH, DEMO_WITHDRAWALS_CENTS } from './demo-series';
+
+/** Dados sintéticos do conjunto de aceitação (out 2025 → set 2026); a série vive em demo-series.ts. */
+export const ACCEPTANCE_DEPOSITS_EUR = DEMO_DEPOSITS_EUR;
+export const ACCEPTANCE_WITHDRAWALS_CENTS = DEMO_WITHDRAWALS_CENTS;
+export const ACCEPTANCE_FIRST_MONTH = DEMO_FIRST_MONTH;
+export const ACCEPTANCE_LAST_MONTH = DEMO_LAST_MONTH;
 
 export const acceptanceWallets: WalletRef[] = [
   { id: 'w-ana-a', profileId: 'ana', bookmakerId: 'casa-a' },

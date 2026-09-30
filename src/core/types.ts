@@ -11,6 +11,9 @@ export type MonthKey = string & { readonly __brand: 'MonthKey' };
 
 export type TxnType = 'deposit' | 'withdrawal';
 
+/** Intensidade de um dia no mapa de depósitos: 0 = sem depósito, 1–4 = quartis dos dias com depósito. */
+export type HeatLevel = 0 | 1 | 2 | 3 | 4;
+
 /** Uma transação de uma conta (perfil × casa). `amountCents` é sempre positivo; o tipo dá o sentido. */
 export interface Transaction {
   id: string;

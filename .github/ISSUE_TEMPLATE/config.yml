@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Plano e etapas
+    url: https://github.com/tpereira2005/tento/blob/main/docs/PLANO.md
+    about: Antes de abrir uma issue, vê se já está prevista no plano.

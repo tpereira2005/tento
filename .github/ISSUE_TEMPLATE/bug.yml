@@ -1,0 +1,39 @@
+name: Erro
+description: Algo não funciona como devia.
+title: 'fix: '
+labels: ['tipo:bug']
+body:
+  - type: textarea
+    id: o-que
+    attributes:
+      label: O que aconteceu
+      description: Descreve o erro. Não coles dados reais (valores, CSVs, nomes de contas).
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Ir a …
+        2. Carregar em …
+        3. Ver …
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que era esperado
+    validations:
+      required: true
+  - type: dropdown
+    id: onde
+    attributes:
+      label: Onde
+      options: [Painel, Importar, Transações, Comparar, Relatórios, Definições, Login, Outro]
+  - type: dropdown
+    id: tema
+    attributes:
+      label: Tema e ecrã
+      multiple: true
+      options: [Claro, Escuro, Computador, Telemóvel]

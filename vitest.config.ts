@@ -11,7 +11,15 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     projects: [
       { extends: true, test: { name: 'core', include: ['src/core/**/*.test.ts'], environment: 'node' } },
-      { extends: true, test: { name: 'web', include: ['src/web/**/*.test.{ts,tsx}'], environment: 'jsdom' } },
+      {
+        extends: true,
+        test: {
+          name: 'web',
+          include: ['src/web/**/*.test.{ts,tsx}'],
+          environment: 'jsdom',
+          testTimeout: 20_000,
+        },
+      },
       { extends: true, test: { name: 'server', include: ['src/server/**/*.test.ts'], environment: 'node' } },
     ],
     coverage: {

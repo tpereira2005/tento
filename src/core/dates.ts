@@ -62,6 +62,14 @@ export function addMonths(key: MonthKey, n: number): MonthKey {
   return makeMonthKey(Math.floor(index / 12), (index % 12) + 1);
 }
 
+/** Desloca uma data `n` meses; se o dia não existir no mês de destino (29 fev → 28 fev), usa o último dia. */
+export function addMonthsToDate(date: IsoDate, n: number): IsoDate {
+  const key = addMonths(monthOf(date), n);
+  const { year, month } = splitMonth(key);
+  const day = Math.min(Number(date.slice(8, 10)), daysInMonth(year, month));
+  return `${key}-${pad(day)}` as IsoDate;
+}
+
 /** Todos os meses de `from` a `to`, inclusive (vazio se `from > to`). */
 export function monthRange(from: MonthKey, to: MonthKey): MonthKey[] {
   const out: MonthKey[] = [];

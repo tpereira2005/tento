@@ -50,7 +50,7 @@ e ao longo do tempo.
 | 3     | Estrutura da aplicação e definições                      | ✅     |
 | 4     | Importação                                               | ✅     |
 | 5     | Painel                                                   | ✅     |
-| 6     | Transações e Comparar                                    | ⏳     |
+| 6     | Transações e Comparar                                    | ✅     |
 | 7     | Relatório PDF                                            | ⏳     |
 | 8     | Endurecimento e portabilidade                            | ⏳     |
 

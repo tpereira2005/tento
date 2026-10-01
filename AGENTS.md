@@ -19,8 +19,8 @@ e "meses positivos", nunca "ROI" ou "win rate".
 
 ## Estado atual
 
-Etapas **0** a **5** concluídas (fundações, núcleo de domínio, BD/API/autenticação, estrutura e definições,
-importação, painel); a seguir, **6 — Transações e Comparar**
+Etapas **0** a **6** concluídas (fundações, núcleo de domínio, BD/API/autenticação, estrutura e definições,
+importação, painel, transações e comparar); a seguir, **7 — Relatório PDF**
 (ver a tabela de etapas no README). Atualiza esta linha no fim de cada etapa.
 
 ## Comandos

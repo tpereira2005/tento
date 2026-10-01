@@ -119,8 +119,8 @@ test('cada página tem um h1 e o título do separador', async ({ page }) => {
 });
 
 test('a página placeholder diz em que etapa chegam', async ({ page }) => {
-  await page.goto('/transacoes');
-  await expect(page.getByText('A lista de transações chega na etapa 6.')).toBeVisible();
+  await page.goto('/relatorios');
+  await expect(page.getByText('O relatório em PDF chega na etapa 7.')).toBeVisible();
 });
 
 test('uma rota desconhecida mostra o 404 com ligação para o início', async ({ page }) => {

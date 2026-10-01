@@ -26,8 +26,13 @@ e ao longo do tempo.
 > «Tento» é a ficha com que se contam os pontos de um jogo — e «ter tento» é ter juízo.
 
 <p align="center">
-  <img src="docs/design/painel-claro.png" alt="Painel do Tento em tema claro (mockup com dados de exemplo)" width="820">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/painel-escuro.png">
+    <img src="docs/screenshots/painel-claro.png" alt="Painel do Tento com o resultado líquido, gráficos e transações recentes" width="820">
+  </picture>
 </p>
+
+<p align="center"><sub>Todas as capturas usam dados de demonstração fictícios (perfis «Ana» e «Rui», «Casa A» e «Casa B»).</sub></p>
 
 ## Funcionalidades
 
@@ -37,8 +42,28 @@ e ao longo do tempo.
 | **Painel**                 | Resultado líquido, depositado vs levantado, meses positivos, acumulado, mensal, dias com depósito |
 | **Casas, perfis e contas** | Várias casas, vários perfis, comparação perfil vs perfil e casa vs casa                           |
 | **Relatório PDF**          | Relatório com o design da marca, gerado no browser                                                |
+| **Os teus dados**          | Exportar tudo em JSON, apagar todos os dados ou apagar a conta, em Definições                     |
+| **Segurança**              | CSP sem scripts inline, HSTS, sessões seguras e registo fechado depois do primeiro utilizador     |
 | **Claro, escuro e móvel**  | O mesmo layout nos dois temas, pensado também para o telemóvel                                    |
 | **Privacidade**            | Sem analytics nem recursos de terceiros; os dados reais nunca entram no repositório               |
+
+## Capturas
+
+### Importação
+
+Pré-visualização antes de guardar nada: linhas novas, já importadas, conflitos e erros por linha.
+
+<p align="center">
+  <img src="docs/screenshots/importar.gif" alt="Fluxo de importação: escolher a conta, escolher o ficheiro, ver a pré-visualização, confirmar e concluir" width="760">
+</p>
+
+### Ecrãs
+
+|                                                                                                           |                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| ![Transações](docs/screenshots/transacoes-claro.png) <br> **Transações** — filtros e totais               | ![Comparar](docs/screenshots/comparar-claro.png) <br> **Comparar** — perfil vs perfil, com a mesma escala       |
+| ![Importar](docs/screenshots/importar-claro.png) <br> **Importar** — pré-visualização com contagens       | ![Relatórios](docs/screenshots/relatorios-claro.png) <br> **Relatórios** — âmbito e PDF                         |
+| ![Definições](docs/screenshots/definicoes-escuro.png) <br> **Definições** (tema escuro) — «Os teus dados» | <img src="docs/screenshots/painel-movel.png" alt="Painel no telemóvel" width="240"> <br> **Telemóvel** — 390 px |
 
 ## Estado
 
@@ -52,7 +77,9 @@ e ao longo do tempo.
 | 5     | Painel                                                   | ✅     |
 | 6     | Transações e Comparar                                    | ✅     |
 | 7     | Relatório PDF                                            | ✅     |
-| 8     | Endurecimento e portabilidade                            | ⏳     |
+| 8     | Endurecimento e portabilidade                            | ✅     |
+
+Versão atual: **v1.0.0** — ver o [`CHANGELOG.md`](CHANGELOG.md).
 
 Detalhe e critérios de "concluído" em [`docs/PLANO.md`](docs/PLANO.md).
 
@@ -69,12 +96,28 @@ Para dados de demonstração (fictícios: Ana/Rui, Casa A/Casa B), define no `.e
 `DEMO_PASSWORD` (palavra-passe com pelo menos 12 caracteres; nunca a escrevas no código) e corre
 `pnpm db:seed`. O registo público fecha depois de criado o primeiro utilizador.
 
-| Comando      | Faz                                          |
-| ------------ | -------------------------------------------- |
-| `pnpm check` | lint, typecheck, formato, testes e build     |
-| `pnpm test`  | testes unitários e de componentes (Vitest)   |
-| `pnpm e2e`   | testes de ponta a ponta com Playwright e axe |
-| `pnpm brand` | regenera logótipo e ícones                   |
+| Comando           | Faz                                                          |
+| ----------------- | ------------------------------------------------------------ |
+| `pnpm check`      | lint, typecheck, formato, testes e build                     |
+| `pnpm test`       | testes unitários e de componentes (Vitest)                   |
+| `pnpm e2e`        | testes de ponta a ponta com Playwright e axe (servidor Node) |
+| `pnpm e2e:worker` | a mesma suíte E2E contra Cloudflare Workers + D1 (`workerd`) |
+| `pnpm worker:dev` | a app sobre Workers + D1 local (`wrangler dev`, porta 8787)  |
+| `pnpm brand`      | regenera logótipo e ícones                                   |
+
+Para o `pnpm worker:dev`, cria um ficheiro `.dev.vars` (ignorado pelo git) com `BETTER_AUTH_SECRET=...` (≥ 32
+caracteres aleatórios) e `BETTER_AUTH_URL=http://localhost:8787`.
+
+### Alojamento
+
+O Tento corre em Node (SQLite/libSQL) ou em Cloudflare Workers + D1, sem alterar código. Passos, variáveis e
+migração de dados em [`docs/MIGRACAO.md`](docs/MIGRACAO.md).
+
+### Contribuir
+
+`node scripts/social-preview.mjs` regenera `brand/social-preview.png` (1280×640, a imagem de pré-visualização
+social do repositório); `pnpm brand` regenera o logótipo e os ícones. As capturas em `docs/screenshots/` são
+feitas a partir da app real com dados de demonstração, nunca com dados reais.
 
 ## Stack
 
@@ -88,6 +131,8 @@ Pensado para correr em Node ou em Cloudflare Workers sem alterações de código
 - [`docs/PLANO.md`](docs/PLANO.md) — plano por etapas
 - [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) — arquitetura e portabilidade
 - [`docs/DECISOES.md`](docs/DECISOES.md) — registo de decisões
+- [`docs/MIGRACAO.md`](docs/MIGRACAO.md) — alojamento e migração (Node, Cloudflare Workers + D1)
+- [`CHANGELOG.md`](CHANGELOG.md) — alterações por versão
 - [`docs/design/`](docs/design) — identidade visual e mockups
 
 ## Licença

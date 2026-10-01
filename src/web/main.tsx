@@ -3,6 +3,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createQueryClient } from './api/query';
+import { InlineRouteError } from './features/shell/ErrorPages';
 import { routeTree } from './routeTree.gen';
 import './styles/app.css';
 
@@ -14,6 +15,7 @@ const router = createRouter({
   defaultPreload: 'intent',
   // Os dados vêm do TanStack Query; o router não guarda cache própria.
   defaultPreloadStaleTime: 0,
+  defaultErrorComponent: InlineRouteError,
 });
 
 declare module '@tanstack/react-router' {

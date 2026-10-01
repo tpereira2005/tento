@@ -2,6 +2,32 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-013 · Transações: limites conhecidos e estabilidade dos testes (2026-10-01)
+
+- **Somas filtradas:** vêm de `/api/stats/dashboard`, que não filtra por tipo nem por texto da nota; com esses
+  filtros ativos as somas seguem só perfil, casa, conta e período, e a página diz isso.
+- **Editar não muda a conta** (o PATCH não aceita `walletId`): para mudar de conta apaga-se e cria-se de novo.
+- **Testes da interface:** tempo das esperas assíncronas da Testing Library a 5 s e tempo por teste a 20 s; o
+  painel falhava de forma intermitente com o valor por omissão (1 s) em máquinas carregadas.
+
+## D-012 · Comparar: dois lados, mesma escala, meses alinhados por posição (2026-10-01)
+
+- **Estado no URL:** `modo=perfis|casas|periodos`, `a`, `b` (ids; no modo períodos, `a` é `3m|6m|12m` e `b` é
+  `anterior|ano`) e `periodo` partilhado. Sem `a`/`b` válidos usam-se os dois perfis (ou casas) com mais
+  movimentos; o mesmo item nunca fica nos dois lados.
+- **Uma consulta por lado** a `/api/stats/dashboard` (chave `['stats','compare',…]`): os números são exatamente
+  os do painel.
+- **Mesma escala:** as curvas acumuladas e as barras mensais usam um domínio vertical comum (`sharedYDomain`),
+  senão o olho compara alturas que não são comparáveis. A é uma linha contínua com marcador redondo e B
+  tracejada com marcador quadrado: distinguem-se sem a cor.
+- **Perfis e casas com «tudo»:** cada lado começa no seu primeiro movimento, por isso os dois são preenchidos
+  com os mesmos meses de calendário (`fillMonths`) antes de alinhar. **Períodos:** `monthlyAligned` alinha por
+  posição (mês 1 com mês 1), com zeros nos meses em falta e o acumulado a manter o último valor.
+- **«Período anterior»** são os mesmos meses de calendário imediatamente antes (`previousMonthsPeriod`), para as
+  duas séries terem o mesmo número de meses; `previousPeriod` (em dias) fica para outros usos.
+- **Diferenças honestas:** sempre `A − B`, em valor absoluto. A percentagem só aparece para depositado e
+  levantado; no resultado líquido (que pode ser negativo) uma percentagem enganaria.
+
 ## D-011 · `node --watch` em vez de `tsx watch` no desenvolvimento (2026-10-01)
 
 - **Problema:** dentro do `concurrently` (`pnpm dev`), no Windows, o `tsx watch` não arrancava a API nem

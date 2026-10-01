@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
 import { demoRows, DEMO_WALLETS, type DemoWalletKey } from '../../src/server/db/demo-dataset';
 import { expectNoAxeViolations, setTheme } from './helpers';
+import { shot } from './shots';
 
 /** Etiqueta única por execução: a BD é partilhada entre testes e projetos. */
 const tag = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 4)}`;
@@ -10,7 +10,6 @@ const headers = { origin: 'http://localhost:4173' };
 const name = (base: string) => `${base} ${tag}`;
 const MINUS = String.fromCharCode(0x2212);
 const EN_DASH = String.fromCharCode(0x2013);
-const SHOTS = 'C:\\Users\\tomas\\bt-analise\\shots';
 /** O relógio do navegador fixa-se aqui: os períodos "últimos 12 meses" dão sempre out 2025 – set 2026. */
 const FIXED_NOW = new Date('2026-09-30T12:00:00Z');
 
@@ -77,11 +76,6 @@ async function ready(page: Page) {
   await expect(page.getByRole('region', { name: 'Resultado acumulado' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Diferença' })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
-}
-
-async function shot(page: Page, file: string) {
-  mkdirSync(SHOTS, { recursive: true });
-  await page.screenshot({ path: `${SHOTS}\\etapa6-comparar-${file}.png`, fullPage: true });
 }
 
 test.describe('Comparar', () => {
@@ -232,7 +226,7 @@ test.describe('Comparar', () => {
       for (const title of ['Resultado acumulado', 'Resultado mensal']) {
         await page.getByRole('region', { name: title }).getByRole('button', { name: 'Ver gráfico' }).click();
       }
-      await shot(page, `perfis-1440-${tema === 'light' ? 'claro' : 'escuro'}`);
+      await shot(page, `etapa6-comparar-perfis-1440-${tema === 'light' ? 'claro' : 'escuro'}`);
     });
   }
 
@@ -242,7 +236,7 @@ test.describe('Comparar', () => {
     await page.goto(periodosUrl);
     await ready(page);
     await expectNoAxeViolations(page);
-    await shot(page, 'periodos-1440-claro');
+    await shot(page, 'etapa6-comparar-periodos-1440-claro');
   });
 
   test('390 px: sem violações, sem scroll horizontal', async ({ page }) => {
@@ -257,6 +251,6 @@ test.describe('Comparar', () => {
     }
     await page.goto(perfisUrl());
     await ready(page);
-    await shot(page, 'perfis-390-claro');
+    await shot(page, 'etapa6-comparar-perfis-390-claro');
   });
 });

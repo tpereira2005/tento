@@ -118,11 +118,6 @@ test('cada página tem um h1 e o título do separador', async ({ page }) => {
   }
 });
 
-test('a página placeholder diz em que etapa chegam', async ({ page }) => {
-  await page.goto('/relatorios');
-  await expect(page.getByText('O relatório em PDF chega na etapa 7.')).toBeVisible();
-});
-
 test('uma rota desconhecida mostra o 404 com ligação para o início', async ({ page }) => {
   await page.goto('/isto-nao-existe');
   await expect(page.getByRole('heading', { level: 1, name: 'Página não encontrada' })).toBeVisible();

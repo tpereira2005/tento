@@ -1,13 +1,12 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
 import { expectNoAxeViolations, setTheme } from './helpers';
+import { shot } from './shots';
 
 /** Etiqueta única por execução: a BD é partilhada entre testes e projetos. */
 const tag = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 4)}`;
 /** A API rejeita escritas sem `Origin` da própria aplicação. */
 const headers = { origin: 'http://localhost:4173' };
 const name = (base: string) => `${base} ${tag}`;
-const SHOTS = 'C:\\Users\\tomas\\bt-analise\\shots';
 const BOM = String.fromCharCode(0xfeff);
 
 interface Named {
@@ -92,11 +91,6 @@ async function ready(page: Page) {
   await expect(page.getByRole('heading', { level: 1, name: 'Transações' })).toBeVisible();
   await expect(page.getByText(/^\d+ transaç(ão|ões)$/)).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
-}
-
-async function shot(page: Page, file: string) {
-  mkdirSync(SHOTS, { recursive: true });
-  await page.screenshot({ path: `${SHOTS}\\etapa6-transacoes-${file}.png`, fullPage: true });
 }
 
 /** Resultado líquido do Painel para a conta de teste (perfil + casa, todo o período). */
@@ -262,12 +256,12 @@ test.describe('Transações', () => {
       await page.goto(listUrl());
       await ready(page);
       await expectNoAxeViolations(page);
-      if (tema === 'light') await shot(page, '1440-claro');
+      if (tema === 'light') await shot(page, 'etapa6-transacoes-1440-claro');
 
       await page.getByRole('button', { name: /^Editar transação de 03\/02\/2025/ }).click();
       await expect(page.getByRole('dialog', { name: 'Editar transação' })).toBeVisible();
       await expectNoAxeViolations(page);
-      if (tema === 'dark') await shot(page, '1440-escuro-dialogo');
+      if (tema === 'dark') await shot(page, 'etapa6-transacoes-1440-escuro-dialogo');
     });
   }
 
@@ -281,7 +275,7 @@ test.describe('Transações', () => {
     await expectNoAxeViolations(page);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
-    await shot(page, '390-claro');
+    await shot(page, 'etapa6-transacoes-390-claro');
 
     await page
       .getByRole('button', { name: /^Adicionar transação/ })
@@ -292,6 +286,6 @@ test.describe('Transações', () => {
     await expectNoAxeViolations(page);
     const overflowOpen = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflowOpen).toBeLessThanOrEqual(0);
-    await shot(page, '390-claro-dialogo');
+    await shot(page, 'etapa6-transacoes-390-claro-dialogo');
   });
 });

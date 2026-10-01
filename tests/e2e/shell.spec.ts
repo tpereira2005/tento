@@ -118,9 +118,7 @@ test('cada página tem um h1 e o título do separador', async ({ page }) => {
   }
 });
 
-test('as páginas placeholder dizem em que etapa chegam', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByText('O painel chega na etapa 5.')).toBeVisible();
+test('a página placeholder diz em que etapa chegam', async ({ page }) => {
   await page.goto('/transacoes');
   await expect(page.getByText('A lista de transações chega na etapa 6.')).toBeVisible();
 });

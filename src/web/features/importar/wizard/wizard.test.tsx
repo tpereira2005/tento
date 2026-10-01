@@ -324,7 +324,7 @@ describe('assistente de importação', () => {
         (await screen.findAllByText('5 transações adicionadas à conta Ana · Casa A.')).length,
       ).toBeGreaterThan(0);
       expect(screen.getByText(/3 já importadas, 1 conflitos e 2 linhas com erros/)).toBeInTheDocument();
-      expect(screen.getByText(/chega na etapa 5/)).toBeInTheDocument();
+      expect(screen.getByText(/já aparecem no Painel/)).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Importação concluída' })).toHaveFocus();
 
       expect(sent(fetchMock, '/api/imports', true)[0]?.body).toEqual({

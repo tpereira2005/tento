@@ -10,9 +10,9 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "concurrently -k -n web,api \"vite\" \"tsx watch src/server/entry/node.ts\"",
+    "dev": "concurrently -k -n web,api \"vite\" \"node --watch --import tsx src/server/entry/node.ts\"",
     "dev:web": "vite",
-    "dev:api": "tsx watch src/server/entry/node.ts",
+    "dev:api": "node --watch --import tsx src/server/entry/node.ts",
     "start": "tsx src/server/entry/node.ts --production",
     "build": "vite build",
     "preview": "vite preview",

@@ -19,15 +19,15 @@ e "meses positivos", nunca "ROI" ou "win rate".
 
 ## Estado atual
 
-Etapas **0** a **4** concluídas (fundações, núcleo de domínio, BD/API/autenticação, estrutura e definições,
-importação); a seguir, **5 — Painel**
+Etapas **0** a **5** concluídas (fundações, núcleo de domínio, BD/API/autenticação, estrutura e definições,
+importação, painel); a seguir, **6 — Transações e Comparar**
 (ver a tabela de etapas no README). Atualiza esta linha no fim de cada etapa.
 
 ## Comandos
 
 ```bash
 pnpm install          # instala dependências e os hooks de git (lefthook)
-pnpm dev              # servidor de desenvolvimento em http://localhost:5173
+pnpm dev              # web em http://localhost:5173 e API em :8787 (o Vite encaminha /api)
 pnpm check            # lint + typecheck + formato + testes + build (corre antes de abrir um PR)
 pnpm test             # testes unitários e de componentes (Vitest)
 pnpm test:coverage    # com cobertura

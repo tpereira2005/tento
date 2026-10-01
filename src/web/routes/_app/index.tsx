@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { StagePlaceholder } from '../../features/shell/StagePlaceholder';
+import { PainelPage } from '../../features/painel/PainelPage';
+import { parseDashboardSearch } from '../../features/painel/search';
 
 export const Route = createFileRoute('/_app/')({
-  component: () => <StagePlaceholder page="dashboard" />,
+  validateSearch: parseDashboardSearch,
+  component: PainelPage,
 });

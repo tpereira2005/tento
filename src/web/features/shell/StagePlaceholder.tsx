@@ -3,7 +3,7 @@ import { t } from '../../i18n';
 import { Card, Chip } from '../../ui';
 import { usePageTitle } from './usePageTitle';
 
-type PlaceholderKey = 'dashboard' | 'transactions' | 'import' | 'compare' | 'reports';
+type PlaceholderKey = 'transactions' | 'import' | 'compare' | 'reports';
 
 /** Página que ainda não existe: título real, e um estado vazio que diz em que etapa chega. */
 export function StagePlaceholder({ page }: { page: PlaceholderKey }) {

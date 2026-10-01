@@ -2,6 +2,15 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-011 · `node --watch` em vez de `tsx watch` no desenvolvimento (2026-10-01)
+
+- **Problema:** dentro do `concurrently` (`pnpm dev`), no Windows, o `tsx watch` não arrancava a API nem
+  escrevia nada (nem erros), e o Vite respondia 502 a todos os pedidos `/api`.
+- **Decisão:** a API de desenvolvimento corre com `node --watch --import tsx` (Node 24); o tsx só compila.
+- **Também nesta etapa:** os eixos dos gráficos usam os valores "redondos" da geometria partilhada
+  (por exemplo −800…+200 no acumulado), mesmo que os mockups mostrassem −600…+200: a geometria é a mesma
+  no ecrã e no PDF e não se ajusta à mão.
+
 ## D-010 · Estrutura da aplicação e E2E contra o servidor real (2026-10-01)
 
 - **Sessão no router:** o layout `_app` carrega `GET /api/me` em `beforeLoad` (cache do TanStack Query, chave `['me']`) e redireciona para `/entrar?redirect=…` num 401. O destino só é aceite se for um caminho interno (`safeRedirect`). Ao entrar aplica-se o tema guardado na conta; no arranque só se aplica se o navegador não tiver escolha local, para não perder uma mudança ainda por gravar.

@@ -2,7 +2,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Download, Upload } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { addDays } from '../../core/dates';
 import { formatCents } from '../../core/format';
+import type { IsoDate } from '../../core/types';
+import { ChartFrame, ChartLegend, CumulativeChart, DepositHeatmap, HeatLegend, MonthlyBars } from '../charts';
 import { useTheme } from '../theme';
 import {
   Amount,
@@ -54,6 +57,109 @@ const PERIODS = [
   { value: '12m', label: '12M' },
   { value: 'tudo', label: 'Tudo' },
 ];
+
+const CHART_MONTHS = [
+  '2025-10',
+  '2025-11',
+  '2025-12',
+  '2026-01',
+  '2026-02',
+  '2026-03',
+  '2026-04',
+  '2026-05',
+  '2026-06',
+  '2026-07',
+  '2026-08',
+  '2026-09',
+];
+const CHART_CUMULATIVE = [
+  12000, 3500, -17500, -13000, -29000, 2000, -7500, -21500, -15500, -41500, -38000, -66450,
+];
+const CHART_NET = [12000, -8500, -21000, 4500, -16000, 31000, -9500, -14000, 6000, -26000, 3500, -28450];
+const CHART_SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+function monthLabel(month: string): string {
+  return `${CHART_SHORT[Number(month.slice(5, 7)) - 1] ?? month} ${month.slice(0, 4)}`;
+}
+
+/** Dias de exemplo (fictícios, determinísticos) de 2025-10-01 a 2026-09-30. */
+function demoDays(): { date: string; depositedCents: number; level: 0 | 1 | 2 | 3 | 4 }[] {
+  const out: { date: string; depositedCents: number; level: 0 | 1 | 2 | 3 | 4 }[] = [];
+  const levels = [0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 3, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 2, 0] as const;
+  let n = 0;
+  for (let d = '2025-10-01' as IsoDate; d <= '2026-09-30'; d = addDays(d, 1)) {
+    const level = levels[(n * 7) % levels.length] ?? 0;
+    out.push({ date: d, depositedCents: level * 2500, level });
+    n += 1;
+  }
+  return out;
+}
+
+function ChartsShowcase() {
+  const cumulative = CHART_MONTHS.map((month, i) => ({ month, cumulativeCents: CHART_CUMULATIVE[i] ?? 0 }));
+  const monthly = CHART_MONTHS.map((month, i) => ({ month, netCents: CHART_NET[i] ?? 0 }));
+  const days = demoDays();
+  const weeks = days.filter((d) => d.level > 0);
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-6 lg:grid-cols-12">
+        <div className="min-w-0 lg:col-span-8">
+          <ChartFrame
+            title="Resultado acumulado"
+            number="01"
+            right="soma de levantado − depositado, mês a mês"
+            table={{
+              caption: 'Resultado acumulado por mês',
+              columns: ['Mês', 'Acumulado'],
+              rows: cumulative.map((p) => [
+                monthLabel(p.month),
+                formatCents(p.cumulativeCents, { signed: true }),
+              ]),
+            }}
+          >
+            <CumulativeChart
+              points={cumulative}
+              annotation="abaixo de zero desde abril"
+              ariaLabel="Resultado acumulado de out 2025 a set 2026: começa em +120,00 €, fecha set em −664,50 €."
+            />
+          </ChartFrame>
+        </div>
+        <div className="min-w-0 lg:col-span-4">
+          <ChartFrame
+            title="Resultado mensal"
+            number="02"
+            right={<ChartLegend />}
+            table={{
+              caption: 'Resultado líquido por mês',
+              columns: ['Mês', 'Resultado'],
+              rows: monthly.map((p) => [monthLabel(p.month), formatCents(p.netCents, { signed: true })]),
+            }}
+          >
+            <MonthlyBars
+              points={monthly}
+              ariaLabel="Resultado mensal: 5 meses positivos, 7 negativos; melhor mar +310,00 €, pior set −284,50 €."
+            />
+          </ChartFrame>
+        </div>
+      </div>
+      <ChartFrame
+        title="Dias com depósito"
+        number="03"
+        right={<HeatLegend />}
+        table={{
+          caption: 'Dias com depósito',
+          columns: ['Data', 'Depositado'],
+          rows: weeks.map((d) => [d.date.split('-').reverse().join('/'), formatCents(d.depositedCents)]),
+        }}
+      >
+        <DepositHeatmap
+          days={days}
+          ariaLabel="Calendário de dias com depósito, de out 2025 a set 2026 (dados de exemplo)."
+        />
+      </ChartFrame>
+    </div>
+  );
+}
 
 function Swatches() {
   useTheme(); // volta a renderizar quando o tema muda, para reler os valores
@@ -282,6 +388,8 @@ function ComponentsPage() {
           <Skeleton className="h-10 w-3/4" />
         </div>
       </Card>
+
+      <ChartsShowcase />
     </div>
   );
 }

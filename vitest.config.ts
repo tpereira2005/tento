@@ -16,8 +16,18 @@ export default defineConfig({
         test: {
           name: 'web',
           include: ['src/web/**/*.test.{ts,tsx}'],
+          exclude: ['src/web/pdf/**', '**/node_modules/**'],
           environment: 'jsdom',
           testTimeout: 20_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'pdf',
+          include: ['src/web/pdf/**/*.test.{ts,tsx}'],
+          environment: 'node',
+          testTimeout: 30_000,
         },
       },
       { extends: true, test: { name: 'server', include: ['src/server/**/*.test.ts'], environment: 'node' } },

@@ -19,8 +19,8 @@ e "meses positivos", nunca "ROI" ou "win rate".
 
 ## Estado atual
 
-Etapas **0** (fundações), **1** (núcleo de domínio) e **2** (BD, API e autenticação) concluídas; a seguir,
-**3 — Estrutura da aplicação e definições**
+Etapas **0** a **3** concluídas (fundações, núcleo de domínio, BD/API/autenticação, estrutura e definições);
+a seguir, **4 — Importação**
 (ver a tabela de etapas no README). Atualiza esta linha no fim de cada etapa.
 
 ## Comandos
@@ -31,7 +31,7 @@ pnpm dev              # servidor de desenvolvimento em http://localhost:5173
 pnpm check            # lint + typecheck + formato + testes + build (corre antes de abrir um PR)
 pnpm test             # testes unitários e de componentes (Vitest)
 pnpm test:coverage    # com cobertura
-pnpm e2e              # testes de ponta a ponta com Playwright e axe (faz build e serve em :4173)
+pnpm e2e              # testes de ponta a ponta com Playwright e axe (faz build e corre o servidor real em :4173 com BD nova; ver scripts/e2e-server.mjs)
 pnpm format           # formata tudo com Prettier
 pnpm brand            # regenera logótipo, ícones e favicon a partir de scripts/brand.mjs
 pnpm test:real        # valida os CSVs reais de TENTO_REAL_CSV_DIR (pasta fora do repo; só local)

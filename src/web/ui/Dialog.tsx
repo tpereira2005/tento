@@ -11,16 +11,21 @@ export interface DialogProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Permite escolher onde fica o foco ao fechar (`event.preventDefault()` e focar à mão). */
+  onCloseAutoFocus?: (event: Event) => void;
   children?: ReactNode;
 }
 
-export function Dialog({ title, description, trigger, children, ...root }: DialogProps) {
+export function Dialog({ title, description, trigger, children, onCloseAutoFocus, ...root }: DialogProps) {
   return (
     <RadixDialog.Root {...root}>
       {trigger ? <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger> : null}
       <RadixDialog.Portal>
         <RadixDialog.Overlay className="fixed inset-0 z-40 bg-ink/50" />
-        <RadixDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-32px)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[14px] border border-line bg-surface p-6">
+        <RadixDialog.Content
+          {...(onCloseAutoFocus ? { onCloseAutoFocus } : {})}
+          className="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-32px)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[14px] border border-line bg-surface p-6"
+        >
           <RadixDialog.Title className="pr-10 font-display text-[22px] font-normal tracking-[-0.01em]">
             {title}
           </RadixDialog.Title>

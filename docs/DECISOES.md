@@ -2,6 +2,12 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-010 · Estrutura da aplicação e E2E contra o servidor real (2026-10-01)
+
+- **Sessão no router:** o layout `_app` carrega `GET /api/me` em `beforeLoad` (cache do TanStack Query, chave `['me']`) e redireciona para `/entrar?redirect=…` num 401. O destino só é aceite se for um caminho interno (`safeRedirect`). Ao entrar aplica-se o tema guardado na conta; no arranque só se aplica se o navegador não tiver escolha local, para não perder uma mudança ainda por gravar.
+- **Navegação:** barra superior a partir de 768 px (a ligação "Definições" sai da barra abaixo de 1024 px e fica no menu da conta); separadores em baixo e painel "Mais" abaixo de 768 px. O menu da conta é um painel simples (botão com `aria-expanded`), não um `role="menu"`.
+- **E2E:** `scripts/e2e-server.mjs` faz `pnpm build` e corre o servidor de produção real em :4173 com uma base de dados nova (`data/e2e.db`) e um segredo aleatório. O projeto `setup` regista o dono pela interface com credenciais fictícias geradas no momento (`tests/e2e/.auth/`, ignorado pelo git) e os projetos `desktop` e `movel` partilham essa sessão. Como a base de dados é única, `workers: 1`; testes que terminam a sessão fazem o seu próprio início de sessão.
+
 ## D-009 · Escritas atómicas com batch e proteção CSRF por origem (2026-10-01)
 
 - **Batch em vez de transação:** as escritas com várias instruções (importar, desfazer) usam `db.batch([...])`,

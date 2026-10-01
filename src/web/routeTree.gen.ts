@@ -9,12 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as ComponentesRouteImport } from './routes/componentes'
+import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as RegistarRouteImport } from './routes/registar'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppCompararRouteImport } from './routes/_app/comparar'
+import { Route as AppDefinicoesRouteImport } from './routes/_app/definicoes'
+import { Route as AppImportarRouteImport } from './routes/_app/importar'
+import { Route as AppRelatoriosRouteImport } from './routes/_app/relatorios'
+import { Route as AppTransacoesRouteImport } from './routes/_app/transacoes'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComponentesRoute = ComponentesRouteImport.update({
@@ -22,40 +29,133 @@ const ComponentesRoute = ComponentesRouteImport.update({
   path: '/componentes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistarRoute = RegistarRouteImport.update({
+  id: '/registar',
+  path: '/registar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCompararRoute = AppCompararRouteImport.update({
+  id: '/comparar',
+  path: '/comparar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDefinicoesRoute = AppDefinicoesRouteImport.update({
+  id: '/definicoes',
+  path: '/definicoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppImportarRoute = AppImportarRouteImport.update({
+  id: '/importar',
+  path: '/importar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransacoesRoute = AppTransacoesRouteImport.update({
+  id: '/transacoes',
+  path: '/transacoes',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
   '/componentes': typeof ComponentesRoute
+  '/entrar': typeof EntrarRoute
+  '/registar': typeof RegistarRoute
+  '/comparar': typeof AppCompararRoute
+  '/definicoes': typeof AppDefinicoesRoute
+  '/importar': typeof AppImportarRoute
+  '/relatorios': typeof AppRelatoriosRoute
+  '/transacoes': typeof AppTransacoesRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/componentes': typeof ComponentesRoute
+  '/entrar': typeof EntrarRoute
+  '/registar': typeof RegistarRoute
+  '/comparar': typeof AppCompararRoute
+  '/definicoes': typeof AppDefinicoesRoute
+  '/importar': typeof AppImportarRoute
+  '/relatorios': typeof AppRelatoriosRoute
+  '/transacoes': typeof AppTransacoesRoute
+  '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
   '/componentes': typeof ComponentesRoute
+  '/entrar': typeof EntrarRoute
+  '/registar': typeof RegistarRoute
+  '/_app/comparar': typeof AppCompararRoute
+  '/_app/definicoes': typeof AppDefinicoesRoute
+  '/_app/importar': typeof AppImportarRoute
+  '/_app/relatorios': typeof AppRelatoriosRoute
+  '/_app/transacoes': typeof AppTransacoesRoute
+  '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/componentes'
+  fullPaths:
+    | '/'
+    | '/componentes'
+    | '/entrar'
+    | '/registar'
+    | '/comparar'
+    | '/definicoes'
+    | '/importar'
+    | '/relatorios'
+    | '/transacoes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/componentes'
-  id: '__root__' | '/' | '/componentes'
+  to:
+    | '/componentes'
+    | '/entrar'
+    | '/registar'
+    | '/comparar'
+    | '/definicoes'
+    | '/importar'
+    | '/relatorios'
+    | '/transacoes'
+    | '/'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/componentes'
+    | '/entrar'
+    | '/registar'
+    | '/_app/comparar'
+    | '/_app/definicoes'
+    | '/_app/importar'
+    | '/_app/relatorios'
+    | '/_app/transacoes'
+    | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
   ComponentesRoute: typeof ComponentesRoute
+  EntrarRoute: typeof EntrarRoute
+  RegistarRoute: typeof RegistarRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/componentes': {
@@ -65,12 +165,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComponentesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registar': {
+      id: '/registar'
+      path: '/registar'
+      fullPath: '/registar'
+      preLoaderRoute: typeof RegistarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/comparar': {
+      id: '/_app/comparar'
+      path: '/comparar'
+      fullPath: '/comparar'
+      preLoaderRoute: typeof AppCompararRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/definicoes': {
+      id: '/_app/definicoes'
+      path: '/definicoes'
+      fullPath: '/definicoes'
+      preLoaderRoute: typeof AppDefinicoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/importar': {
+      id: '/_app/importar'
+      path: '/importar'
+      fullPath: '/importar'
+      preLoaderRoute: typeof AppImportarRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/relatorios': {
+      id: '/_app/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AppRelatoriosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/transacoes': {
+      id: '/_app/transacoes'
+      path: '/transacoes'
+      fullPath: '/transacoes'
+      preLoaderRoute: typeof AppTransacoesRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppCompararRoute: typeof AppCompararRoute
+  AppDefinicoesRoute: typeof AppDefinicoesRoute
+  AppImportarRoute: typeof AppImportarRoute
+  AppRelatoriosRoute: typeof AppRelatoriosRoute
+  AppTransacoesRoute: typeof AppTransacoesRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppCompararRoute: AppCompararRoute,
+  AppDefinicoesRoute: AppDefinicoesRoute,
+  AppImportarRoute: AppImportarRoute,
+  AppRelatoriosRoute: AppRelatoriosRoute,
+  AppTransacoesRoute: AppTransacoesRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
   ComponentesRoute: ComponentesRoute,
+  EntrarRoute: EntrarRoute,
+  RegistarRoute: RegistarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

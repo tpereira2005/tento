@@ -31,3 +31,6 @@ Thumbs.db
 desktop.ini
 .idea/
 *.log
+
+# sessão e credenciais fictícias geradas pelo setup dos testes E2E
+tests/e2e/.auth/

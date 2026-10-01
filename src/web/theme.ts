@@ -33,3 +33,37 @@ export function useTheme(): { theme: Theme; toggle: () => void } {
   }, [theme]);
   return { theme, toggle };
 }
+
+/** Preferência guardada na conta: `system` segue o dispositivo. */
+export type ThemePreference = Theme | 'system';
+
+function systemTheme(): Theme {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function hasStoredTheme(): boolean {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored === 'light' || stored === 'dark';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Aplica a preferência da conta. `system` esquece a escolha local e segue o dispositivo.
+ * Com `onlyIfUnset`, respeita uma escolha local já feita neste navegador (arranque da aplicação).
+ */
+export function applyPreference(preference: ThemePreference, options: { onlyIfUnset?: boolean } = {}): void {
+  if (options.onlyIfUnset && hasStoredTheme()) return;
+  if (preference === 'system') {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // sem armazenamento: nada a esquecer
+    }
+    document.documentElement.dataset.theme = systemTheme();
+    return;
+  }
+  applyTheme(preference);
+}

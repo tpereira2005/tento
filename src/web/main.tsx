@@ -1,10 +1,22 @@
+import { QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { createQueryClient } from './api/query';
+import { InlineRouteError } from './features/shell/ErrorPages';
 import { routeTree } from './routeTree.gen';
 import './styles/app.css';
 
-const router = createRouter({ routeTree, defaultPreload: 'intent' });
+const queryClient = createQueryClient();
+
+const router = createRouter({
+  routeTree,
+  context: { queryClient },
+  defaultPreload: 'intent',
+  // Os dados vêm do TanStack Query; o router não guarda cache própria.
+  defaultPreloadStaleTime: 0,
+  defaultErrorComponent: InlineRouteError,
+});
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -17,6 +29,8 @@ if (!root) throw new Error('Elemento #root em falta no index.html');
 
 createRoot(root).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </StrictMode>,
 );

@@ -17,8 +17,10 @@ const coreBoundaries = {
 const webBoundaries = {
   patterns: [
     {
-      group: ['@/server/*', '../server/*', '../../server/*'],
-      message: 'src/web não importa src/server; usa a API.',
+      group: ['@/server/*', '../server/*', '../../server/*', '../../../server/*'],
+      // Só tipos (os contratos da API); nunca código do servidor no browser.
+      allowTypeImports: true,
+      message: 'src/web não importa código de src/server; usa a API (import type é permitido).',
     },
   ],
 };
@@ -64,6 +66,13 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
+      // O TanStack Router usa `throw redirect(...)` / `throw notFound()` para controlar a navegação.
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        {
+          allow: [{ from: 'package', package: '@tanstack/router-core', name: ['Redirect', 'NotFoundError'] }],
+        },
+      ],
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
     },
   },

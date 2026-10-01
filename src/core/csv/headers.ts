@@ -44,7 +44,8 @@ export function mapHeaders(cells: readonly string[]): Result<ColumnMap, { missin
   return ok({ date: found.date, type: found.type, amount: found.amount });
 }
 
-const TYPE_ALIASES: Record<TxnType, readonly string[]> = {
+/** Palavras de tipo aceites (já normalizadas). */
+export const TYPE_ALIASES: Record<TxnType, readonly string[]> = {
   deposit: ['deposit', 'deposito', 'dep', 'depositar'],
   withdrawal: ['withdrawal', 'withdraw', 'withdrawl', 'levantamento', 'levantar', 'saque', 'retirada'],
 };

@@ -130,7 +130,7 @@ test.describe('Importar', () => {
     await page.getByRole('button', { name: 'Importar 5 transações' }).click();
     await expect(page.getByRole('heading', { level: 2, name: 'Importação concluída' })).toBeFocused();
     await expect(page.getByText(`5 transações adicionadas à conta ${accountLabel}.`).first()).toBeVisible();
-    await expect(page.getByText(/chega na etapa 5/)).toBeVisible();
+    await expect(page.getByText(/já aparecem no Painel/)).toBeVisible();
 
     // 2. o mesmo ficheiro outra vez: nada de novo
     await page.getByRole('button', { name: 'Importar outro ficheiro' }).click();

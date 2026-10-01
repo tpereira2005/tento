@@ -12,7 +12,7 @@ export function DesktopNav() {
           <li key={item.to} className={clsx(item.to === '/definicoes' && 'hidden lg:block')}>
             <Link
               to={item.to}
-              activeOptions={{ exact: item.to === '/' }}
+              activeOptions={{ exact: item.to === '/', includeSearch: false }}
               className="inline-flex h-9 items-center rounded-full px-3 text-[14px] text-ink-2 transition-colors hover:text-ink data-[status=active]:bg-pill data-[status=active]:font-semibold data-[status=active]:text-pill-ink"
             >
               {item.label}

@@ -27,7 +27,11 @@ export function BottomTabs() {
       <ul className="grid grid-cols-5">
         {mobileTabs().map((item) => (
           <li key={item.to}>
-            <Link to={item.to} activeOptions={{ exact: item.to === '/' }} className={TAB}>
+            <Link
+              to={item.to}
+              activeOptions={{ exact: item.to === '/', includeSearch: false }}
+              className={TAB}
+            >
               <span className={ICON_PILL}>
                 <item.icon size={20} strokeWidth={1.8} aria-hidden={true} />
               </span>

@@ -8,7 +8,7 @@ export interface ButtonProps extends ComponentProps<'button'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   /** Ícone opcional antes do texto (componente lucide-react). */
-  icon?: ComponentType<{ size?: number; strokeWidth?: number; 'aria-hidden'?: boolean }>;
+  icon?: ComponentType<{ size?: number; strokeWidth?: number; className?: string; 'aria-hidden'?: boolean }>;
 }
 
 const VARIANTS: Record<ButtonVariant, string> = {
@@ -43,7 +43,9 @@ export function Button({
       )}
       {...rest}
     >
-      {Icon ? <Icon size={size === 'sm' ? 14 : 16} strokeWidth={1.8} aria-hidden={true} /> : null}
+      {Icon ? (
+        <Icon size={size === 'sm' ? 14 : 16} strokeWidth={1.8} className="shrink-0" aria-hidden={true} />
+      ) : null}
       {children}
     </button>
   );

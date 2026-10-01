@@ -1,4 +1,4 @@
-import { signedBars } from '../../core/charts';
+import { signedBars, type Domain } from '../../core/charts';
 import { t } from '../i18n';
 import { formatBarLabel, formatTick, labelIndices, MIN_BAND, monthShort, useChartWidth } from './shared';
 
@@ -7,10 +7,18 @@ export interface MonthlyBarsProps {
   height?: number;
   compact?: boolean;
   ariaLabel: string;
+  /** Domínio vertical fixo, para vários gráficos partilharem a mesma escala. */
+  yDomain?: Domain;
 }
 
 /** Resultado mensal: barras a partir da linha do zero, só os extremos com rótulo. */
-export function MonthlyBars({ points, height = 264, compact: compactProp, ariaLabel }: MonthlyBarsProps) {
+export function MonthlyBars({
+  points,
+  height = 264,
+  compact: compactProp,
+  ariaLabel,
+  yDomain,
+}: MonthlyBarsProps) {
   const [ref, width] = useChartWidth<HTMLDivElement>();
   const compact = compactProp ?? width < 300;
 
@@ -26,7 +34,7 @@ export function MonthlyBars({ points, height = 264, compact: compactProp, ariaLa
   const geo = signedBars(
     points.map((p) => p.netCents),
     { width, height, padding },
-    { radius: 3, tickCount: width < 400 ? 3 : 5 },
+    { radius: 3, tickCount: width < 400 ? 3 : 5, ...(yDomain ? { yDomain } : {}) },
   );
   const plotRight = width - padding.right;
   const showMonth = labelIndices(

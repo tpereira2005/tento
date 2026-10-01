@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { StagePlaceholder } from '../../features/shell/StagePlaceholder';
+import { ComparePage } from '../../features/comparar/ComparePage';
+import { parseCompareSearch } from '../../features/comparar/search';
 
 export const Route = createFileRoute('/_app/comparar')({
-  component: () => <StagePlaceholder page="compare" />,
+  validateSearch: parseCompareSearch,
+  component: ComparePage,
 });

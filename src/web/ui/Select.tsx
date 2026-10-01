@@ -5,6 +5,8 @@ import { Check, ChevronDown } from 'lucide-react';
 export interface SelectOption {
   value: string;
   label: string;
+  /** Opção visível mas não escolhível (ex.: o mesmo perfil já escolhido no outro lado). */
+  disabled?: boolean;
 }
 
 export interface SelectProps {
@@ -54,7 +56,8 @@ export function Select({ label, options, value, defaultValue, onValueChange, cla
               <RadixSelect.Item
                 key={o.value}
                 value={o.value}
-                className="relative flex h-9 cursor-default items-center rounded-md pr-3 pl-7 text-[14px] text-ink outline-none data-[highlighted]:bg-surface-2"
+                {...(o.disabled ? { disabled: true } : {})}
+                className="relative flex h-9 cursor-default items-center rounded-md pr-3 pl-7 text-[14px] text-ink outline-none data-[disabled]:text-ink-2 data-[disabled]:opacity-60 data-[highlighted]:bg-surface-2"
               >
                 <RadixSelect.ItemIndicator className="absolute left-2">
                   <Check size={14} strokeWidth={2} aria-hidden="true" />

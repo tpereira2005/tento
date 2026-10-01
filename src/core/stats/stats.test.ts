@@ -2,10 +2,17 @@ import { describe, expect, it } from 'vitest';
 import type { IsoDate, MonthKey, Transaction } from '../types';
 import { acceptanceTransactions, acceptanceWallets, makeTxn } from './acceptance.test.fixture';
 import { breakdown, UNKNOWN_ID } from './breakdown';
-import { comparePeriods, previousPeriod } from './compare';
+import {
+  comparePeriods,
+  fillMonths,
+  monthlyAligned,
+  previousMonthsPeriod,
+  previousPeriod,
+  samePeriodLastYear,
+} from './compare';
 import { filterTransactions } from './filter';
 import { depositHeatmap } from './heatmap';
-import { monthlySeries } from './monthly';
+import { monthlySeries, type MonthlyPoint } from './monthly';
 import { computeStreaks } from './streaks';
 import { divRoundHalfAwayFromZero, summarize } from './summary';
 
@@ -367,5 +374,119 @@ describe('comparePeriods / previousPeriod', () => {
     );
     expect(r.deltas.netCents).toEqual({ absolute: 0, ratio: null });
     expect(r.a.depositCount).toBe(0);
+  });
+});
+
+describe('samePeriodLastYear / previousMonthsPeriod', () => {
+  it('recua 12 meses nas duas datas', () => {
+    expect(samePeriodLastYear({ from: d('2025-11-01'), to: d('2026-10-01') })).toEqual({
+      from: '2024-11-01',
+      to: '2025-10-01',
+    });
+  });
+  it('29 de fevereiro passa a 28 em anos não bissextos, e o inverso mantém o dia', () => {
+    expect(samePeriodLastYear({ from: d('2024-02-29'), to: d('2024-03-31') })).toEqual({
+      from: '2023-02-28',
+      to: '2023-03-31',
+    });
+    // 2028 → 2027 (não bissexto) e 2025-02-28 → 2024-02-28 (sem salto para 29)
+    expect(samePeriodLastYear({ from: d('2028-02-29'), to: d('2028-02-29') })).toEqual({
+      from: '2027-02-28',
+      to: '2027-02-28',
+    });
+    expect(samePeriodLastYear({ from: d('2025-02-28'), to: d('2025-02-28') })).toEqual({
+      from: '2024-02-28',
+      to: '2024-02-28',
+    });
+  });
+  it('uma data de 2024-03-01 recua para 2023-03-01 (sem efeito do ano bissexto)', () => {
+    expect(samePeriodLastYear({ from: d('2024-03-01'), to: d('2024-12-31') })).toEqual({
+      from: '2023-03-01',
+      to: '2023-12-31',
+    });
+  });
+  it('previousMonthsPeriod dá o mesmo número de meses imediatamente antes', () => {
+    expect(previousMonthsPeriod({ from: d('2025-11-01'), to: d('2026-10-01') })).toEqual({
+      from: '2024-11-01',
+      to: '2025-10-31',
+    });
+    expect(previousMonthsPeriod({ from: d('2026-03-01'), to: d('2026-03-15') })).toEqual({
+      from: '2026-02-01',
+      to: '2026-02-28',
+    });
+    // fevereiro bissexto no fim do período anterior
+    expect(previousMonthsPeriod({ from: d('2024-03-01'), to: d('2024-05-31') })).toEqual({
+      from: '2023-12-01',
+      to: '2024-02-29',
+    });
+  });
+});
+
+describe('fillMonths / monthlyAligned', () => {
+  const pt = (month: string, net: number, cumulative: number): MonthlyPoint => ({
+    month: m(month),
+    depositedCents: net < 0 ? -net : 0,
+    withdrawnCents: net > 0 ? net : 0,
+    netCents: net,
+    cumulativeCents: cumulative,
+    depositCount: net < 0 ? 1 : 0,
+    withdrawalCount: net > 0 ? 1 : 0,
+  });
+
+  it('fillMonths preenche buracos e extremos, mantendo o acumulado', () => {
+    const out = fillMonths([pt('2025-02', -100, -100), pt('2025-04', 300, 200)], m('2025-01'), m('2025-05'));
+    expect(out.map((p) => p.month)).toEqual(['2025-01', '2025-02', '2025-03', '2025-04', '2025-05']);
+    expect(out.map((p) => p.netCents)).toEqual([0, -100, 0, 300, 0]);
+    expect(out.map((p) => p.cumulativeCents)).toEqual([0, -100, -100, 200, 200]);
+  });
+
+  it('alinha séries com o mesmo comprimento por posição, com meses diferentes', () => {
+    const a = [pt('2025-11', -100, -100), pt('2025-12', 50, -50)];
+    const b = [pt('2024-11', 200, 200), pt('2024-12', -300, -100)];
+    const r = monthlyAligned(a, b);
+    expect(r).toHaveLength(2);
+    expect(r[0]).toMatchObject({ index: 0, monthA: '2025-11', monthB: '2024-11' });
+    expect(r[0]?.a.netCents).toBe(-100);
+    expect(r[0]?.b.netCents).toBe(200);
+    expect(r[1]?.a.cumulativeCents).toBe(-50);
+    expect(r[1]?.b.cumulativeCents).toBe(-100);
+  });
+
+  it('um lado com buracos: os meses em falta ficam a zeros dentro do lado', () => {
+    const a = [pt('2025-01', -100, -100), pt('2025-04', 400, 300)];
+    const b = [pt('2025-01', 10, 10), pt('2025-02', 10, 20), pt('2025-03', 10, 30), pt('2025-04', 10, 40)];
+    const r = monthlyAligned(a, b);
+    expect(r.map((x) => x.a.netCents)).toEqual([-100, 0, 0, 400]);
+    expect(r.map((x) => x.a.cumulativeCents)).toEqual([-100, -100, -100, 300]);
+    expect(r.map((x) => x.monthA)).toEqual(['2025-01', '2025-02', '2025-03', '2025-04']);
+    expect(r.map((x) => x.b.netCents)).toEqual([10, 10, 10, 10]);
+  });
+
+  it('comprimentos diferentes: o lado mais curto acaba a zeros com o acumulado mantido', () => {
+    const a = [pt('2025-01', -100, -100)];
+    const b = [pt('2025-01', 10, 10), pt('2025-02', 20, 30), pt('2025-03', 30, 60)];
+    const r = monthlyAligned(a, b);
+    expect(r).toHaveLength(3);
+    expect(r.map((x) => x.a.netCents)).toEqual([-100, 0, 0]);
+    expect(r.map((x) => x.a.cumulativeCents)).toEqual([-100, -100, -100]);
+    expect(r.map((x) => x.monthA)).toEqual(['2025-01', '2025-02', '2025-03']);
+    expect(r.map((x) => x.b.cumulativeCents)).toEqual([10, 30, 60]);
+  });
+
+  it('um lado completamente vazio: tudo a zeros e sem meses de calendário', () => {
+    const b = [pt('2025-01', 10, 10), pt('2025-02', 20, 30)];
+    const r = monthlyAligned([], b);
+    expect(r).toHaveLength(2);
+    expect(r.every((x) => x.monthA === null && x.a.netCents === 0 && x.a.cumulativeCents === 0)).toBe(true);
+    expect(r.map((x) => x.monthB)).toEqual(['2025-01', '2025-02']);
+    expect(monthlyAligned(b, [])).toHaveLength(2);
+    expect(monthlyAligned([], [])).toEqual([]);
+  });
+
+  it('atravessa o ano e um fevereiro bissexto sem perder meses', () => {
+    const a = [pt('2023-12', 100, 100), pt('2024-03', 100, 200)];
+    const r = monthlyAligned(a, []);
+    expect(r.map((x) => x.monthA)).toEqual(['2023-12', '2024-01', '2024-02', '2024-03']);
+    expect(r.map((x) => x.a.netCents)).toEqual([100, 0, 0, 100]);
   });
 });

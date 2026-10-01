@@ -76,6 +76,17 @@ export function buildYAxis(
   return { domain, scale, zeroY: round2(scale(0)), yTicks };
 }
 
+/**
+ * Domínio único para várias séries que se comparam (inclui sempre o 0, arredondado às marcas).
+ * Sem valores, ou só zeros, usa ±100 cêntimos como `buildYAxis`.
+ */
+export function sharedYDomain(series: readonly (readonly number[])[], tickCount = 5): [number, number] {
+  const all = series.flat();
+  const lo = Math.min(0, ...all);
+  const hi = Math.max(0, ...all);
+  return lo === hi ? [-100, 100] : niceDomain(lo, hi, tickCount);
+}
+
 export interface ChartBox {
   width: number;
   height: number;

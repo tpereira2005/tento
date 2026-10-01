@@ -8,6 +8,7 @@ import {
   niceDomain,
   niceTicks,
   round2,
+  sharedYDomain,
   signedBars,
   yScale,
 } from './index';
@@ -311,5 +312,28 @@ describe('calendarGrid', () => {
     expect(g.columns).toBe(1);
     expect(g.cells.map((c) => c.row)).toEqual([0, 1, 2, 3, 4, 5, 6]);
     expect(g.monthLabels).toEqual([]);
+  });
+});
+
+describe('sharedYDomain', () => {
+  it('inclui o zero e cobre as duas séries', () => {
+    const [lo, hi] = sharedYDomain([cents([-60, -607.5]), cents([5, -57])]);
+    expect(lo).toBeLessThanOrEqual(-60750);
+    expect(hi).toBeGreaterThanOrEqual(0);
+  });
+  it('séries vazias ou a zeros usam ±100', () => {
+    expect(sharedYDomain([])).toEqual([-100, 100]);
+    expect(sharedYDomain([[0, 0], []])).toEqual([-100, 100]);
+  });
+  it('o mesmo domínio dá marcas iguais nas duas curvas', () => {
+    const domain = sharedYDomain([CUMULATIVE, [0, 500, 900]]);
+    const a = cumulativeLine(CUMULATIVE, BOX, { yDomain: domain });
+    const b = cumulativeLine(
+      CUMULATIVE.map((v) => v / 2),
+      BOX,
+      { yDomain: domain },
+    );
+    expect(a.yTicks).toEqual(b.yTicks);
+    expect(a.zeroY).toBe(b.zeroY);
   });
 });

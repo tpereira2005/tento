@@ -48,7 +48,7 @@ e ao longo do tempo.
 | 1     | Núcleo de domínio: CSV, dinheiro, datas, estatísticas    | ✅     |
 | 2     | Base de dados, API e autenticação                        | ✅     |
 | 3     | Estrutura da aplicação e definições                      | ✅     |
-| 4     | Importação                                               | ⏳     |
+| 4     | Importação                                               | ✅     |
 | 5     | Painel                                                   | ⏳     |
 | 6     | Transações e Comparar                                    | ⏳     |
 | 7     | Relatório PDF                                            | ⏳     |

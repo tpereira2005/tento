@@ -9,6 +9,7 @@ import { createAuth } from '../auth';
 import { createLibsqlDb, migrateLibsql } from '../db/client';
 import { loadEnv } from '../env';
 import { apiError } from '../http';
+import { isHttps, securityHeadersMiddleware } from '../security';
 
 /** Ponto de entrada Node: lê a configuração, migra a BD e serve a API (e o `dist/` em produção). */
 async function main() {
@@ -31,6 +32,8 @@ async function main() {
   });
 
   const server = new Hono();
+  // Cabeçalhos de segurança em TODAS as respostas (API e ficheiros estáticos).
+  server.use('*', securityHeadersMiddleware({ https: isHttps(env.BETTER_AUTH_URL) }));
   server.route('/', createApp({ db, auth }));
 
   if (env.NODE_ENV === 'production') {

@@ -60,3 +60,18 @@ export async function signInAndWait(
   }
   throw new Error('Não foi possível entrar (limite de tentativas).');
 }
+
+/**
+ * Regista as violações da política de segurança (CSP) que o browser escreve na consola e como erros
+ * de página. Chamar ANTES de navegar; no fim, `expect(violations).toEqual([])`.
+ */
+export function watchCsp(page: Page): string[] {
+  const violations: string[] = [];
+  page.on('console', (message) => {
+    if (/content security policy/i.test(message.text())) violations.push(message.text());
+  });
+  page.on('pageerror', (error) => {
+    if (/content security policy/i.test(error.message)) violations.push(error.message);
+  });
+  return violations;
+}

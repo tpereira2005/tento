@@ -1,4 +1,4 @@
-import { and, count, desc, eq, isNull } from 'drizzle-orm';
+import { and, count, desc, eq, isNull, sql } from 'drizzle-orm';
 import type { ParsedRow } from '../../../core/csv';
 import { err, ok, type Result } from '../../../core/types';
 import type { Db } from '../client';
@@ -6,10 +6,11 @@ import { bookmaker, importBatch, profile, txn, wallet } from '../schema';
 import { newId } from './shared';
 
 /**
- * Linhas por instrução `INSERT` multi-linha. Cada linha usa ~10 parâmetros; em D1 (limite de 100 parâmetros
- * por consulta) o valor terá de baixar para 9 quando o adaptador D1 for ligado.
+ * Linhas por instrução `INSERT`. As linhas de cada bloco vão num único parâmetro JSON (lido com
+ * `json_each`), por isso o número de parâmetros não cresce com as linhas: o D1 aceita no máximo 100
+ * parâmetros por consulta e um número limitado de consultas por pedido (ver D-016).
  */
-export const INSERT_CHUNK_ROWS = 200;
+export const INSERT_CHUNK_ROWS = 500;
 
 export interface ImportBatchView {
   id: string;
@@ -67,6 +68,24 @@ async function loadImport(db: Db, userId: string, id: string): Promise<ImportBat
   return rows[0] ?? null;
 }
 
+/** Uma linha nova do CSV: `[id, date, type, amountCents, seq]`. */
+type TxnTuple = [string, string, string, number, number];
+
+/**
+ * `INSERT ... SELECT` a partir de um array JSON: 7 parâmetros por instrução, seja qual for o número de linhas.
+ * Funciona igual em libSQL e em D1 (ambos têm as funções JSON do SQLite). Usa `insert().select(sql)` e não
+ * `db.run(sql)`: no lote do D1 o Drizzle só sabe preparar consultas construídas, não SQL cru com parâmetros.
+ * O SELECT devolve as colunas pela ordem da tabela `txn` (exigência do INSERT ... SELECT do Drizzle).
+ */
+function insertCsvRows(db: Db, userId: string, walletId: string, batchId: string, rows: readonly TxnTuple[]) {
+  const now = Date.now();
+  return db.insert(txn).select(sql`
+    SELECT json_extract(j.value, '$[0]'), ${userId}, ${walletId}, json_extract(j.value, '$[1]'),
+      json_extract(j.value, '$[2]'), json_extract(j.value, '$[3]'), json_extract(j.value, '$[4]'),
+      'csv', ${batchId}, NULL, ${now}, ${now}
+    FROM json_each(${JSON.stringify(rows)}) AS j`);
+}
+
 /**
  * Regista o import e as suas linhas num único `db.batch`: ou fica tudo, ou não fica nada.
  * `seq` de cada linha nova = linhas já existentes nessa conta e data + posição da linha no ficheiro.
@@ -90,17 +109,13 @@ export async function commitImport(
   const baseSeq = new Map(existing.map((e) => [e.date, e.n]));
 
   const batchId = newId();
-  const values = input.rows.map((row) => ({
-    id: newId(),
-    userId,
-    walletId: input.walletId,
-    date: row.date,
-    type: row.type,
-    amountCents: row.amountCents,
-    seq: (baseSeq.get(row.date) ?? 0) + row.seq,
-    source: 'csv' as const,
-    importBatchId: batchId,
-  }));
+  const values: TxnTuple[] = input.rows.map((row) => [
+    newId(),
+    row.date,
+    row.type,
+    row.amountCents,
+    (baseSeq.get(row.date) ?? 0) + row.seq,
+  ]);
 
   const insertBatch = db.insert(importBatch).values({
     id: batchId,
@@ -116,7 +131,7 @@ export async function commitImport(
   });
   const inserts = [];
   for (let i = 0; i < values.length; i += INSERT_CHUNK_ROWS) {
-    inserts.push(db.insert(txn).values(values.slice(i, i + INSERT_CHUNK_ROWS)));
+    inserts.push(insertCsvRows(db, userId, input.walletId, batchId, values.slice(i, i + INSERT_CHUNK_ROWS)));
   }
   await db.batch([insertBatch, ...inserts]);
 

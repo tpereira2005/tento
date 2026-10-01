@@ -81,3 +81,36 @@ export function useUpdateSettings() {
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.me }),
   });
 }
+
+/** Apaga todos os dados da conta (a conta mantém-se); tudo o que estava em cache fica desatualizado. */
+export function useDeleteAllData() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (confirm: string) => api<undefined>('/me/data', { method: 'DELETE', body: { confirm } }),
+    onSuccess: () => qc.invalidateQueries(),
+  });
+}
+
+/** Apaga a própria conta (exige a palavra-passe); a sessão termina no servidor. */
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: (password: string) => api<undefined>('/me', { method: 'DELETE', body: { password } }),
+  });
+}
+
+/** Descarrega a exportação JSON como ficheiro (usa o nome indicado pelo servidor, se vier). */
+export async function downloadExport(): Promise<void> {
+  const res = await fetch('/api/me/export', { credentials: 'same-origin' });
+  if (!res.ok) throw new Error(`export_failed_${String(res.status)}`);
+  const blob = await res.blob();
+  const header = res.headers.get('content-disposition') ?? '';
+  const filename = /filename="([^"]+)"/.exec(header)?.[1] ?? 'tento-dados.json';
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}

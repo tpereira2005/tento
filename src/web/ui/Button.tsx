@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import type { ComponentProps, ComponentType } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'quiet';
+export type ButtonVariant = 'primary' | 'secondary' | 'quiet' | 'danger';
 export type ButtonSize = 'md' | 'sm';
 
 export interface ButtonProps extends ComponentProps<'button'> {
@@ -14,6 +14,8 @@ export interface ButtonProps extends ComponentProps<'button'> {
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-cta text-cta-ink font-semibold enabled:hover:brightness-110',
   secondary: 'border border-control bg-transparent text-ink enabled:hover:bg-surface-2',
+  // ação destrutiva: fundo no tom do texto negativo (mesmo contraste que `text-neg-text` sobre a superfície)
+  danger: 'bg-neg-text text-surface font-semibold enabled:hover:brightness-110',
   quiet: 'bg-transparent text-ink-2 enabled:hover:bg-surface-2 enabled:hover:text-ink',
 };
 

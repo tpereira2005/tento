@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import { Download, Upload } from 'lucide-react';
-import { useId } from 'react';
 import { t } from '../../i18n';
 import { Button, Segmented, Select } from '../../ui';
 import { ALL_BOOKMAKERS, ALL_PROFILES, PERIODS, type DashboardSearch, type Period } from './search';
@@ -19,6 +18,10 @@ export interface PainelHeaderProps {
   subtitle: string | null;
   showFilters: boolean;
   onChange: (patch: DashboardSearch) => void;
+  /** Gera o PDF do âmbito atual. */
+  onExport: () => void;
+  /** Há um PDF a ser gerado (o botão fica desativado). */
+  exporting: boolean;
 }
 
 /** Título, subtítulo e filtros (perfil, casa, período) do painel; os filtros vivem no URL. */
@@ -29,10 +32,11 @@ export function PainelHeader({
   subtitle,
   showFilters,
   onChange,
+  onExport,
+  exporting,
 }: PainelHeaderProps) {
   const d = t().dashboard;
   const f = d.filters;
-  const noteId = useId();
   const periodLabels: Record<Period, string> = { '3m': f.p3m, '6m': f.p6m, '12m': f.p12m, tudo: f.pAll };
   return (
     <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -73,12 +77,9 @@ export function PainelHeader({
             <Upload size={16} strokeWidth={1.8} aria-hidden="true" />
             {d.importCsv}
           </Link>
-          <Button icon={Download} disabled title={d.exportSoon} aria-describedby={noteId}>
+          <Button icon={Download} disabled={exporting} onClick={onExport}>
             {d.exportPdf}
           </Button>
-          <span id={noteId} className="sr-only">
-            {d.exportSoon}
-          </span>
         </div>
       ) : null}
     </header>

@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { StagePlaceholder } from '../../features/shell/StagePlaceholder';
+import { RelatoriosPage } from '../../features/relatorios/RelatoriosPage';
+import { parseReportSearch } from '../../features/relatorios/search';
 
 export const Route = createFileRoute('/_app/relatorios')({
-  component: () => <StagePlaceholder page="reports" />,
+  validateSearch: parseReportSearch,
+  component: RelatoriosPage,
 });

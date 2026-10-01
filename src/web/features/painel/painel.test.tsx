@@ -27,10 +27,13 @@ import {
 } from '../../../core';
 import { acceptanceTransactions, acceptanceWallets } from '../../../core/stats/acceptance.test.fixture';
 import { setLocale } from '../../i18n';
+import { buildReportPdf } from '../../pdf';
 import { InsightsCard } from './InsightsCard';
 import { PainelPage } from './PainelPage';
 import { ScoreboardCard } from './ScoreboardCard';
 import { parseDashboardSearch, periodRange } from './search';
+
+vi.mock('../../pdf', () => ({ buildReportPdf: vi.fn() }));
 
 const TODAY = '2026-09-30' as IsoDate;
 const MINUS = String.fromCharCode(0x2212);
@@ -183,6 +186,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.useRealTimers();
   vi.unstubAllGlobals();
   setLocale('pt-PT');
@@ -248,13 +252,37 @@ describe('Painel: números do conjunto de aceitação', () => {
     expect(rows[2]).toHaveTextContent('+120,00 €');
   });
 
-  it('o botão Exportar PDF está desativado e explica porquê', async () => {
-    renderPainel();
+  it('o botão Exportar PDF gera o relatório dos filtros atuais e descarrega-o', async () => {
+    const user = userEvent.setup();
+    vi.mocked(buildReportPdf).mockResolvedValue(new Blob(['%PDF']));
+    URL.createObjectURL = vi.fn(() => 'blob:painel');
+    URL.revokeObjectURL = vi.fn();
+    const names: string[] = [];
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      names.push(this.download);
+    });
+    renderPainel('/?perfil=ana&periodo=6m');
     await screen.findByRole('region', { name: /Resultado líquido/ });
     const button = screen.getByRole('button', { name: 'Exportar PDF' });
-    expect(button).toBeDisabled();
-    expect(button).toHaveAccessibleDescription('Exportar PDF chega na etapa 7.');
+    expect(button).toBeEnabled();
     expect(screen.getByRole('link', { name: 'Importar CSV' })).toHaveAttribute('href', '/importar');
+
+    await user.click(button);
+    await waitFor(() => {
+      expect(names).toEqual(['tento-relatorio-2026-09-30.pdf']);
+    });
+    expect(vi.mocked(buildReportPdf)).toHaveBeenCalledTimes(1);
+    const input = vi.mocked(buildReportPdf).mock.calls[0]?.[0];
+    expect(input?.scope.profile).toBe('Ana');
+    expect(input?.scope.bookmaker).toBe('Todas as casas');
+    const reportRequests = requests.filter(
+      (u) => u.pathname === '/api/transactions' && u.searchParams.get('limit') === '200',
+    );
+    expect(reportRequests).toHaveLength(1);
+    expect(reportRequests[0]?.searchParams.get('profileIds')).toBe('ana');
+    expect(reportRequests[0]?.searchParams.get('from')).toBe('2026-04-01');
+    expect(reportRequests[0]?.searchParams.get('to')).toBe('2026-09-30');
+    expect(screen.getByRole('status')).toHaveTextContent('Relatório gerado: tento-relatorio-2026-09-30.pdf.');
   });
 
   it('a tabela do gráfico acumulado alterna', async () => {
@@ -368,7 +396,7 @@ describe('Painel: estados', () => {
 
   it('mostra o esqueleto enquanto carrega', async () => {
     renderPainel();
-    expect(await screen.findByRole('status')).toHaveTextContent('A carregar o painel');
+    expect(await screen.findByText('A carregar o painel')).toBeInTheDocument();
   });
 
   it('um erro oferece tentar de novo e recupera', async () => {

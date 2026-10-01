@@ -5,6 +5,8 @@ import { useDashboard, useRecentTransactions } from './api';
 import type { TxnDto, WalletDto } from '../../api/types';
 import { t } from '../../i18n';
 import { useBookmakers, useProfiles, useWallets } from '../definicoes/api';
+import { ReportStatus } from '../relatorios/ReportStatus';
+import { useReportGenerator } from '../relatorios/useReportGenerator';
 import { usePageTitle } from '../shell/usePageTitle';
 import { AccountsCard, HousesCard } from './BreakdownCards';
 import { CumulativeCard, DaysCard, MonthlyCard } from './ChartCards';
@@ -105,6 +107,8 @@ export function PainelPage() {
   const profiles = useProfiles();
   const bookmakers = useBookmakers();
 
+  const report = useReportGenerator();
+
   const walletList = wallets.data?.items;
   const hasAny = walletList ? walletList.some((w) => w.txnCount > 0) : undefined;
   const dashboard = useDashboard(filters, hasAny === true);
@@ -175,7 +179,12 @@ export function PainelPage() {
         subtitle={subtitle}
         showFilters={hasAny !== false}
         onChange={onChange}
+        onExport={() => {
+          void report.run(filters);
+        }}
+        exporting={report.running}
       />
+      <ReportStatus gen={report} />
       {body}
     </div>
   );

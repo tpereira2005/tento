@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
 import { demoRows, DEMO_WALLETS, type DemoWalletKey } from '../../src/server/db/demo-dataset';
 import { expectNoAxeViolations, setTheme } from './helpers';
+import { shot } from './shots';
 
 /** Etiqueta única por execução: a BD é partilhada entre testes e projetos. */
 const tag = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 4)}`;
@@ -9,7 +9,6 @@ const tag = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).sl
 const headers = { origin: 'http://localhost:4173' };
 const name = (base: string) => `${base} ${tag}`;
 const MINUS = String.fromCharCode(0x2212);
-const SHOTS = 'C:\\Users\\tomas\\bt-analise\\shots';
 
 interface Named {
   id: string;
@@ -72,11 +71,6 @@ async function ready(page: Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-async function shot(page: Page, file: string) {
-  mkdirSync(SHOTS, { recursive: true });
-  await page.screenshot({ path: `${SHOTS}\\etapa5-painel-${file}.png`, fullPage: true });
-}
-
 test.describe('Painel', () => {
   test.skip(({ isMobile }) => isMobile, 'o ecrã de 390 px é testado com viewport próprio no projeto desktop');
 
@@ -132,8 +126,8 @@ test.describe('Painel', () => {
     await expect(recent.getByRole('row')).toHaveCount(6);
     await expect(recent.getByRole('link', { name: /Ver todas/ })).toHaveAttribute('href', '/transacoes');
 
-    // exportar PDF ainda não existe
-    await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeDisabled();
+    // exportar PDF está disponível (a geração é testada em relatorios.spec.ts)
+    await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeEnabled();
     await expect(page.getByRole('link', { name: 'Importar CSV' })).toHaveAttribute('href', '/importar');
   });
 
@@ -188,7 +182,7 @@ test.describe('Painel', () => {
       await page.goto('/?periodo=tudo');
       await ready(page);
       await expectNoAxeViolations(page);
-      await shot(page, `1440-${tema === 'light' ? 'claro' : 'escuro'}`);
+      await shot(page, `etapa5-painel-1440-${tema === 'light' ? 'claro' : 'escuro'}`);
     });
   }
 
@@ -200,6 +194,6 @@ test.describe('Painel', () => {
     await expectNoAxeViolations(page);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
-    await shot(page, '390-claro');
+    await shot(page, 'etapa5-painel-390-claro');
   });
 });

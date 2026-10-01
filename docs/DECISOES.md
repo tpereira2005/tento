@@ -2,6 +2,18 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-014 · Relatório PDF (2026-10-01)
+
+- **Fontes:** o @react-pdf não aceita fontes variáveis nem WOFF2; o PDF embute as versões estáticas WOFF da
+  Fraunces, Instrument Sans e DM Mono (subconjunto latino, que inclui o menos U+2212, o € e os acentos).
+- **Espaço fino:** a DM Mono não tem o U+202F (separador de milhares) e o PDF mostrava "/"; no PDF os números
+  usam o espaço inseparável U+00A0.
+- **Paginação manual da tabela de transações:** a paginação automática do @react-pdf demorava ~10 s com 1000
+  linhas; com páginas montadas à mão, 1000 transações desenham-se em ~1,7 s. Consequência: ao copiar texto do
+  PDF, a tabela sai coluna a coluna (o texto continua selecionável e pesquisável); notas longas são cortadas.
+- **Carregamento:** a biblioteca de PDF (~445 kB gzip) só carrega ao exportar; os destaques passam para o PDF
+  como texto simples, sem `react-dom/server`.
+
 ## D-013 · Transações: limites conhecidos e estabilidade dos testes (2026-10-01)
 
 - **Somas filtradas:** vêm de `/api/stats/dashboard`, que não filtra por tipo nem por texto da nota; com esses

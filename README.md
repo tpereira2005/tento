@@ -51,7 +51,7 @@ e ao longo do tempo.
 | 4     | Importação                                               | ✅     |
 | 5     | Painel                                                   | ✅     |
 | 6     | Transações e Comparar                                    | ✅     |
-| 7     | Relatório PDF                                            | ⏳     |
+| 7     | Relatório PDF                                            | ✅     |
 | 8     | Endurecimento e portabilidade                            | ⏳     |
 
 Detalhe e critérios de "concluído" em [`docs/PLANO.md`](docs/PLANO.md).

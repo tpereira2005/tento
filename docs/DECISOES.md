@@ -2,6 +2,39 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-017 · Deploy público no ChatGPT Sites (2026-10-02)
+
+- **Proteção antes da primeira conta:** `OWNER_EMAIL` opcional nas entradas Node e Worker, validado por
+  `loadEnv`. O hook de criação do utilizador do Better Auth recusa outros emails com `registration_closed`,
+  independentemente do fornecedor e de existirem utilizadores. Remove espaços e ignora maiúsculas.
+  Mantém-se o fecho após a primeira conta e o comportamento anterior quando a variável não existe.
+- **Público com dados privados:** audiência pública no Sites, sem lista de acesso. O login da aplicação
+  continua a proteger a API e os dados. A ligação lógica `DB` fica no manifesto; o Sites gere o D1 real.
+- **Login ChatGPT:** a [OpenAI confirma o SIWC no Sites](https://help.openai.com/en/articles/20001410-sign-in-with-chatgpt),
+  mas o contrato técnico disponível (plugin Sites 0.1.75, `references/authentication.md` e
+  `app/chatgpt-auth.ts` do starter) expõe um fluxo do dispatcher e cabeçalhos de identidade; não fornece
+  configuração OIDC/secret para Better Auth nem prova acessível de `email_verified`. O email é descrito para
+  apresentação/contacto. Não se implementa uma ligação de contas alternativa sem essas garantias;
+  mantém-se email + palavra-passe. Não se alarga a CSP nem se acrescenta um botão sem login funcional.
+- **Hash:** mantém-se scrypt do Better Auth. Registo e login passaram no site real com HTTP 200 e sem
+  falha por CPU. A telemetria final do Worker mediu 87 ms no registo e 75 ms no login (tempo de CPU,
+  não latência do browser). Não foi necessário PBKDF2. Esta verificação é específica da configuração atual do Sites;
+  não é uma garantia para o plano gratuito de 10 ms de CPU do Cloudflare direto. Se o limite mudar e
+  aparecer uma falha por CPU, pedir aprovação antes de trocar o hash (ver MIGRACAO).
+- **Build específico:** o primeiro deploy confirmou que o Sites ignorava `_headers` e o fallback de
+  `wrangler.jsonc`: ativos sem CSP e endereços internos com 404. `pnpm build:sites` embute os ativos no
+  Worker gerado, sem `dist/client` no pacote. `entry/sites.ts` aplica os mesmos `securityHeaders`, cache,
+  tipos MIME e fallback da SPA; a API continua na entrada Worker existente. Aumenta o tamanho do Worker,
+  mas garante os cabeçalhos em todas as respostas sem depender de configuração não suportada. `src/core`,
+  `src/web` e repositórios da BD não mudam. O build Node/local continua independente.
+- **HTML sem injeções:** o Cloudflare injetou JavaScript Detections como script inline no HTML, bloqueado
+  pela CSP. O HTML do adaptador leva `Cache-Control: no-cache, no-transform`, que
+  [impede essa injeção segundo o Cloudflare](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/).
+  Não se acrescenta `unsafe-inline`, nonce ou exceção à CSP para scripts da plataforma.
+- **Estado:** [publicado](https://tento.tomaspereira.chatgpt.site), com migrações e variáveis da plataforma.
+  Fluxos, PDF, cabeçalhos e CSP verificados no browser; conta e dados fictícios apagados. As dez tabelas
+  de utilizador/domínio do D1 foram confirmadas vazias, prontas para a conta do dono.
+
 ## D-016 · Entrada Cloudflare Workers + D1 (2026-10-01)
 
 - **Duas entradas, um só código:** `src/server/entry/node.ts` (SQLite/libSQL) e `src/server/entry/worker.ts`

@@ -11,6 +11,8 @@ export interface AuthConfig {
   secret: string;
   baseURL: string;
   registration: RegistrationMode;
+  /** Quando definido, só este email pode criar a conta, por qualquer fornecedor. */
+  ownerEmail?: string | undefined;
   /** Só para testes: substitui a configuração do limite de pedidos (por omissão ativo, 100/min). */
   rateLimit?: BetterAuthRateLimitOptions;
 }
@@ -19,8 +21,9 @@ export interface AuthConfig {
  * Better Auth com e-mail e palavra-passe. Com `first-user-only` o registo fecha assim que existe um
  * utilizador (app privada de um só dono); `open` existe só para os testes de isolamento.
  */
-export function createAuth({ db, secret, baseURL, registration, rateLimit }: AuthConfig) {
+export function createAuth({ db, secret, baseURL, registration, ownerEmail, rateLimit }: AuthConfig) {
   const secure = baseURL.startsWith('https://');
+  const normalizedOwnerEmail = ownerEmail?.replace(/\s/g, '').toLowerCase();
   const auth = betterAuth({
     appName: 'Tento',
     secret,
@@ -39,8 +42,12 @@ export function createAuth({ db, secret, baseURL, registration, rateLimit }: Aut
     databaseHooks: {
       user: {
         create: {
-          before: async () => {
-            if (registration === 'first-user-only' && (await countUsers(db)) > 0) {
+          before: async (newUser) => {
+            if (
+              (normalizedOwnerEmail &&
+                newUser.email.replace(/\s/g, '').toLowerCase() !== normalizedOwnerEmail) ||
+              (registration === 'first-user-only' && (await countUsers(db)) > 0)
+            ) {
               throw new APIError('FORBIDDEN', {
                 code: 'registration_closed',
                 message: 'O registo está fechado.',

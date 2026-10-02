@@ -21,6 +21,7 @@ export interface WorkerEnv {
   ASSETS: AssetsBinding;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
+  OWNER_EMAIL?: string;
 }
 
 let cached: { env: WorkerEnv; server: Hono } | undefined;
@@ -34,6 +35,7 @@ function serverFor(env: WorkerEnv): Hono {
   const config = loadEnv({
     BETTER_AUTH_SECRET: env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: env.BETTER_AUTH_URL,
+    OWNER_EMAIL: env.OWNER_EMAIL,
     NODE_ENV: 'production',
   });
   const db: Db = drizzle(env.DB, { schema });
@@ -42,6 +44,7 @@ function serverFor(env: WorkerEnv): Hono {
     secret: config.BETTER_AUTH_SECRET,
     baseURL: config.BETTER_AUTH_URL,
     registration: 'first-user-only',
+    ownerEmail: config.OWNER_EMAIL,
   });
 
   const server = new Hono();

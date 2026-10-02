@@ -24,6 +24,8 @@
   ],
   "vars": {
     "BETTER_AUTH_URL": "http://localhost:8787",
+    // Em produção, definir OWNER_EMAIL na plataforma antes de abrir o acesso público.
+    // OWNER_EMAIL é opcional; sem ele, o primeiro utilizador pode criar conta.
   },
   "observability": { "enabled": true },
 }

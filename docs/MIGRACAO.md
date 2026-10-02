@@ -7,6 +7,7 @@ nas duas entradas, com o mesmo código de domínio, API e interface:
 | ------- | ---------------------------- | ------------------------------ | ---------------------------------------- |
 | Node    | `src/server/entry/node.ts`   | SQLite/libSQL (`DATABASE_URL`) | `dist/` servido pelo Hono                |
 | Worker  | `src/server/entry/worker.ts` | D1 (ligação `DB`)              | Workers Static Assets (ligação `ASSETS`) |
+| Sites   | `src/server/entry/sites.ts`  | D1 (ligação `DB`, mesma API)   | ativos embutidos no Worker pelo build    |
 
 A suíte E2E completa corre contra as duas (`pnpm e2e` e `pnpm e2e:worker`), também no CI. Se as duas
 passarem, a migração é só configuração: **não é preciso mudar código em `src/core`, `src/web` nem nos
@@ -65,6 +66,76 @@ O ChatGPT Sites corre sobre Workers + D1, por isso o plano é o mesmo. O que pod
 
 Variáveis obrigatórias em qualquer caso: `BETTER_AUTH_SECRET` (segredo, ≥ 32 caracteres) e
 `BETTER_AUTH_URL` (origem pública).
+
+## Configuração do Tento no Sites
+
+- Projeto registado em `.openai/hosting.json`, com a ligação lógica `d1: "DB"`. O Sites gere o recurso
+  D1 real; o `database_id` de `wrangler.jsonc` continua a ser o marcador para desenvolvimento local.
+- Origem pública: [https://tento.tomaspereira.chatgpt.site](https://tento.tomaspereira.chatgpt.site).
+  Publicado e verificado em 2026-10-02, com acesso **público**, sem login ChatGPT nem lista de visitantes.
+- Variáveis de runtime nas definições do Sites: `BETTER_AUTH_URL` igual à origem acima, sem barra final;
+  `OWNER_EMAIL` igual ao email do dono; `BETTER_AUTH_SECRET` marcado como segredo da plataforma.
+- `OWNER_EMAIL` é opcional. Se estiver definido, o hook de criação do utilizador do Better Auth recusa
+  qualquer outro email com `registration_closed`, mesmo com zero utilizadores e em qualquer fornecedor.
+  A comparação remove espaços e ignora maiúsculas. Sem esta variável mantém-se o comportamento anterior.
+  Depois da primeira conta, o registo continua fechado. Apagar essa conta volta a permitir apenas o dono.
+- `pnpm build:sites` compila a SPA em `.wrangler/sites-client/`, incluindo `_headers`, e embute os ativos
+  em `dist/server/index.js` com `nodejs_compat`. Copia o manifesto e as migrações para
+  `dist/.openai/`. O build local/Node (`pnpm build`) mantém o formato anterior.
+- **Diferença observada no primeiro deploy:** o Sites ignorou `_headers` e o `wrangler.jsonc` gerado;
+  os ativos conhecidos eram servidos antes do Worker, sem CSP, e `/entrar` devolvia 404. O adaptador
+  `entry/sites.ts` serve os ativos embutidos com `securityHeaders`, tipos MIME, cache/ETag e fallback da SPA.
+  Não se publica `dist/client/`, para impedir que o caminho de ativos contorne o Worker. A API continua a
+  usar integralmente `entry/worker.ts`, sem mudanças no domínio, na interface ou nos repositórios da BD.
+- O HTML leva `Cache-Control: no-cache, no-transform`: sem essa diretiva, o Cloudflare injetou JavaScript
+  Detections inline e a CSP bloqueou-o. `no-transform` impede a injeção, preservando a CSP original (D-017).
+- O Sites aplica e regista individualmente os SQL de `drizzle/` antes de carregar o Worker.
+  Não aplicar migrações no arranque nem modificar migrações já publicadas.
+
+### Autenticação verificada na plataforma
+
+A [documentação oficial](https://help.openai.com/en/articles/20001410-sign-in-with-chatgpt) confirma
+«Sign in with ChatGPT» no Sites. O contrato técnico do plugin Sites 0.1.75 descreve um fluxo gerido pelo
+dispatcher (`/signin-with-chatgpt`, `/callback` e cabeçalhos `oai-authenticated-user-*`), e não um
+fornecedor OIDC com client secret disponível para configurar no Better Auth. O email é descrito para
+apresentação/contacto, sem um claim `email_verified` acessível. Assim, **o Tento mantém apenas email e
+palavra-passe**: não liga contas por cabeçalhos nem inventa um fornecedor. Rever quando existir um contrato
+documentado que cumpra a verificação de email e a ligação segura de contas (D-017). A CSP não foi alargada.
+
+### Verificação realizada
+
+`pnpm check`: 517 testes passaram; `pnpm e2e:worker`: 155 passaram e 42 foram ignorados conforme os
+projetos desktop/móvel. O build do Sites também é verificado no CI.
+
+No browser real, sem sessão de ChatGPT: outro email recusado com zero utilizadores, registo do dono,
+fecho do registo e login por email, importação de `tests/fixtures/csv/canonico.csv`, métricas conferidas,
+Painel, Transações, Comparar, PDF, exportação e eliminação. Claro, escuro e 390 px revistos, sem violações
+axe, CSP ou erros de página. Páginas e scripts levaram CSP, HSTS e `frame-ancestors 'none'`.
+
+O scrypt funcionou no registo e no login em produção (HTTP 200, sem falha por CPU); não foi necessário
+PBKDF2. A telemetria do Worker registou **87 ms de CPU no registo** e **75 ms no login** na verificação
+final (2026-10-02). Isto verifica a configuração atual do Sites, não promete compatibilidade com o plano gratuito de
+10 ms de CPU do Cloudflare direto.
+
+A conta temporária foi apagada e as dez tabelas de utilizador/domínio do D1 foram confirmadas vazias.
+O dono pode criar a sua conta de raiz e importar os CSVs reais diretamente na aplicação; nenhum CSV real
+foi usado ou publicado.
+
+### Voltar a publicar e rodar os segredos
+
+1. Trabalhar num ramo próprio, preservar `.openai/hosting.json` e gerar migrações novas com
+   `pnpm db:generate` se o esquema mudar. Rever o SQL; nunca reescrever migrações aplicadas.
+2. Correr `pnpm check`, `pnpm e2e:worker` e `pnpm build:sites`.
+3. Usar o fluxo de publicação da skill Sites com o mesmo projeto: enviar o commit exato para o repositório
+   de origem do Sites, empacotar `dist/`, guardar a versão e publicar para a audiência pública existente.
+   O repositório de origem do Sites é distinto do GitHub; não usar `wrangler deploy` para atualizar o Sites.
+   No Windows, usar o Bash do Git e `TAR_OPTIONS=--force-local` no fluxo de empacotamento, para que o
+   `tar` não interprete `C:/...` como um servidor remoto. Nenhuma credencial vai na linha de comandos.
+4. Esperar pelo estado de publicação concluída e testar a origem pública com dados fictícios.
+5. Para rodar `BETTER_AUTH_SECRET`, substituir apenas esse segredo nas definições do Sites e publicar
+   novamente uma versão guardada. As sessões existentes deixam de ser válidas; as palavras-passe e os dados
+   mantêm-se. Nunca copiar segredos para o manifesto, GitHub, chat ou notas de release.
+6. Se mudar o domínio, alterar `BETTER_AUTH_URL` para a origem exata do browser e voltar a publicar.
 
 ## Limites a conhecer
 

@@ -25,6 +25,7 @@ describe('ativos no Sites', () => {
       expect(response.headers.get('content-security-policy')).toContain("frame-ancestors 'none'");
       expect(response.headers.get('strict-transport-security')).toContain('max-age=');
       expect(response.headers.get('x-frame-options')).toBe('DENY');
+      expect(response.headers.get('cache-control')).toContain('no-transform');
     },
   );
 

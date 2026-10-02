@@ -87,6 +87,8 @@ Variáveis obrigatórias em qualquer caso: `BETTER_AUTH_SECRET` (segredo, ≥ 32
   `entry/sites.ts` serve os ativos embutidos com `securityHeaders`, tipos MIME, cache/ETag e fallback da SPA.
   Não se publica `dist/client/`, para impedir que o caminho de ativos contorne o Worker. A API continua a
   usar integralmente `entry/worker.ts`, sem mudanças no domínio, na interface ou nos repositórios da BD.
+- O HTML leva `Cache-Control: no-cache, no-transform`: sem essa diretiva, o Cloudflare injetou JavaScript
+  Detections inline e a CSP bloqueou-o. `no-transform` impede a injeção, preservando a CSP original (D-017).
 - O Sites aplica e regista individualmente os SQL de `drizzle/` antes de carregar o Worker.
   Não aplicar migrações no arranque nem modificar migrações já publicadas.
 

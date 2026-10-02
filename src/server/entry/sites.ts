@@ -26,7 +26,11 @@ export function serveSiteAsset(request: Request, assets: SiteAssets): Response {
   headers.set('ETag', asset.etag);
   headers.set(
     'Cache-Control',
-    pathname.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache',
+    asset.contentType.startsWith('text/html')
+      ? 'no-cache, no-transform'
+      : pathname.startsWith('/assets/')
+        ? 'public, max-age=31536000, immutable'
+        : 'no-cache',
   );
   if (request.headers.get('if-none-match') === asset.etag) {
     return new Response(null, { status: 304, headers });

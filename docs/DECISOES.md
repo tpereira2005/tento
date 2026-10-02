@@ -24,6 +24,10 @@ Decisões técnicas e de produto, com o contexto e as alternativas consideradas.
   tipos MIME e fallback da SPA; a API continua na entrada Worker existente. Aumenta o tamanho do Worker,
   mas garante os cabeçalhos em todas as respostas sem depender de configuração não suportada. `src/core`,
   `src/web` e repositórios da BD não mudam. O build Node/local continua independente.
+- **HTML sem injeções:** o Cloudflare injetou JavaScript Detections como script inline no HTML, bloqueado
+  pela CSP. O HTML do adaptador leva `Cache-Control: no-cache, no-transform`, que
+  [impede essa injeção segundo o Cloudflare](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/).
+  Não se acrescenta `unsafe-inline`, nonce ou exceção à CSP para scripts da plataforma.
 - **Estado:** projeto e variáveis configurados; publicação e validação de produção pendentes.
 
 ## D-016 · Entrada Cloudflare Workers + D1 (2026-10-01)

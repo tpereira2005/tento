@@ -1,9 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test, type APIRequestContext } from '@playwright/test';
 import { expectNoAxeViolations } from './helpers';
+import { uniqueTag } from './tag';
 
 /** Etiqueta única por execução: a BD é partilhada entre testes e projetos. */
-const tag = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 4)}`;
+const tag = uniqueTag();
 /** A API rejeita escritas sem `Origin` da própria aplicação. */
 const headers = { origin: 'http://localhost:4173' };
 const name = (base: string) => `${base} ${tag}`;

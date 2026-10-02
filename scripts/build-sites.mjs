@@ -1,7 +1,17 @@
 // Empacota a entrada Worker existente para o contrato do Sites, sem alterar o build Node/local.
 import { spawnSync } from 'node:child_process';
-import { cpSync, lstatSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { basename, dirname, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import {
+  cpSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { basename, dirname, extname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('../', import.meta.url)));
@@ -26,16 +36,61 @@ function run(module, args) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-run('node_modules/vite/bin/vite.js', ['build', '--outDir', 'dist/client']);
+// Sem dist/client no pacote: o Sites serviria esses ficheiros antes do Worker, sem `_headers`.
+const client = resolve(root, '.wrangler/sites-client');
+mkdirSync(resolve(root, '.wrangler'), { recursive: true });
+run('node_modules/vite/bin/vite.js', ['build', '--outDir', '.wrangler/sites-client', '--emptyOutDir']);
+const contentTypes = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json',
+  '.webmanifest': 'application/manifest+json',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+};
+const assets = {};
+function collect(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const filename = resolve(directory, entry.name);
+    if (entry.isDirectory()) collect(filename);
+    else if (entry.isFile() && entry.name !== '_headers') {
+      const bytes = readFileSync(filename);
+      const pathname = '/' + relative(client, filename).replaceAll('\\', '/');
+      assets[pathname] = {
+        base64: bytes.toString('base64'),
+        contentType: contentTypes[extname(filename)] ?? 'application/octet-stream',
+        etag: '"' + createHash('sha256').update(bytes).digest('hex') + '"',
+      };
+    } else if (!entry.isFile()) throw new Error('Ativo inesperado no build.');
+  }
+}
+collect(client);
+writeFileSync(resolve(root, '.wrangler/sites-assets.json'), JSON.stringify(assets));
+writeFileSync(
+  resolve(root, '.wrangler/sites-entry.mjs'),
+  "import { createSitesWorker } from '../src/server/entry/sites.ts';\n" +
+    "import assets from './sites-assets.json';\nexport default createSitesWorker(assets);\n",
+);
+const config = {
+  name: 'tento',
+  main: './sites-entry.mjs',
+  compatibility_date: '2026-09-30',
+  compatibility_flags: ['nodejs_compat'],
+};
+writeFileSync(resolve(root, '.wrangler/sites-build.json'), JSON.stringify(config));
 run('node_modules/wrangler/bin/wrangler.js', [
   'deploy',
   '--dry-run',
+  '--config',
+  '.wrangler/sites-build.json',
   '--outdir',
   'dist/server',
-  '--assets',
-  'dist/client',
 ]);
-renameSync(resolve(output, 'server/worker.js'), resolve(output, 'server/index.js'));
+renameSync(resolve(output, 'server/sites-entry.js'), resolve(output, 'server/index.js'));
 mkdirSync(resolve(output, '.openai'), { recursive: true });
 cpSync(resolve(root, '.openai/hosting.json'), resolve(output, '.openai/hosting.json'));
 cpSync(resolve(root, 'drizzle'), resolve(output, '.openai/drizzle'), { recursive: true });
@@ -49,12 +104,6 @@ writeFileSync(
       main: './index.js',
       compatibility_date: '2026-09-30',
       compatibility_flags: ['nodejs_compat'],
-      assets: {
-        directory: '../client',
-        binding: 'ASSETS',
-        not_found_handling: 'single-page-application',
-        run_worker_first: ['/api/*'],
-      },
     },
     null,
     2,

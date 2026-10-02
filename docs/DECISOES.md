@@ -18,9 +18,12 @@ Decisões técnicas e de produto, com o contexto e as alternativas consideradas.
   mantém-se email + palavra-passe. Não se alarga a CSP nem se acrescenta um botão sem login funcional.
 - **Hash:** mantém-se scrypt do Better Auth. A adequação ao limite de CPU depende do teste no site real;
   se houver falha por CPU, pedir aprovação para PBKDF2 WebCrypto antes de mudar (ver MIGRACAO).
-- **Build específico:** `pnpm build:sites` adapta o formato do artefacto (`dist/client`, `dist/server/index.js`,
-  manifesto e migrações) usando a entrada Worker existente. `src/core`, `src/web` e repositórios da BD
-  não mudam. O build Node/local continua independente.
+- **Build específico:** o primeiro deploy confirmou que o Sites ignorava `_headers` e o fallback de
+  `wrangler.jsonc`: ativos sem CSP e endereços internos com 404. `pnpm build:sites` embute os ativos no
+  Worker gerado, sem `dist/client` no pacote. `entry/sites.ts` aplica os mesmos `securityHeaders`, cache,
+  tipos MIME e fallback da SPA; a API continua na entrada Worker existente. Aumenta o tamanho do Worker,
+  mas garante os cabeçalhos em todas as respostas sem depender de configuração não suportada. `src/core`,
+  `src/web` e repositórios da BD não mudam. O build Node/local continua independente.
 - **Estado:** projeto e variáveis configurados; publicação e validação de produção pendentes.
 
 ## D-016 · Entrada Cloudflare Workers + D1 (2026-10-01)

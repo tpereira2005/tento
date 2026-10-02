@@ -30,6 +30,7 @@ jobs:
       - run: pnpm format:check
       - run: pnpm test:coverage
       - run: pnpm build
+      - run: pnpm build:sites
 
   e2e:
     name: E2E e acessibilidade

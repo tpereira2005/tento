@@ -55,6 +55,10 @@ mesmo `createApp`. Passos e limites para o alojamento final em [`MIGRACAO.md`](M
 O projeto do ChatGPT Sites está configurado em `.openai/hosting.json` com D1 `DB` e acesso público;
 publicação e validação em produção ainda pendentes. A limitação da integração SIWC está registada em D-017.
 
+No Sites, `entry/sites.ts` adapta a entrega dos ativos embutidos no Worker pelo build: a plataforma não
+aplicou `_headers` nem o fallback da SPA no primeiro deploy. Esta entrada garante os cabeçalhos e as rotas
+internas, e delega toda a API a `entry/worker.ts`. O Cloudflare direto mantém Workers Static Assets.
+
 ## API (`/api`)
 
 Todas as rotas exceto `/auth/*` e `/setup` exigem sessão. Pedidos que alteram dados exigem o cabeçalho

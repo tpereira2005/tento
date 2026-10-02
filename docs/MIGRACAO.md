@@ -7,6 +7,7 @@ nas duas entradas, com o mesmo código de domínio, API e interface:
 | ------- | ---------------------------- | ------------------------------ | ---------------------------------------- |
 | Node    | `src/server/entry/node.ts`   | SQLite/libSQL (`DATABASE_URL`) | `dist/` servido pelo Hono                |
 | Worker  | `src/server/entry/worker.ts` | D1 (ligação `DB`)              | Workers Static Assets (ligação `ASSETS`) |
+| Sites   | `src/server/entry/sites.ts`  | D1 (ligação `DB`, mesma API)   | ativos embutidos no Worker pelo build    |
 
 A suíte E2E completa corre contra as duas (`pnpm e2e` e `pnpm e2e:worker`), também no CI. Se as duas
 passarem, a migração é só configuração: **não é preciso mudar código em `src/core`, `src/web` nem nos
@@ -78,9 +79,14 @@ Variáveis obrigatórias em qualquer caso: `BETTER_AUTH_SECRET` (segredo, ≥ 32
   qualquer outro email com `registration_closed`, mesmo com zero utilizadores e em qualquer fornecedor.
   A comparação remove espaços e ignora maiúsculas. Sem esta variável mantém-se o comportamento anterior.
   Depois da primeira conta, o registo continua fechado. Apagar essa conta volta a permitir apenas o dono.
-- `pnpm build:sites` compila a SPA em `dist/client/`, incluindo `_headers`, e empacota a entrada Worker
-  existente em `dist/server/index.js` com `nodejs_compat`. Copia o manifesto e as migrações para
+- `pnpm build:sites` compila a SPA em `.wrangler/sites-client/`, incluindo `_headers`, e embute os ativos
+  em `dist/server/index.js` com `nodejs_compat`. Copia o manifesto e as migrações para
   `dist/.openai/`. O build local/Node (`pnpm build`) mantém o formato anterior.
+- **Diferença observada no primeiro deploy:** o Sites ignorou `_headers` e o `wrangler.jsonc` gerado;
+  os ativos conhecidos eram servidos antes do Worker, sem CSP, e `/entrar` devolvia 404. O adaptador
+  `entry/sites.ts` serve os ativos embutidos com `securityHeaders`, tipos MIME, cache/ETag e fallback da SPA.
+  Não se publica `dist/client/`, para impedir que o caminho de ativos contorne o Worker. A API continua a
+  usar integralmente `entry/worker.ts`, sem mudanças no domínio, na interface ou nos repositórios da BD.
 - O Sites aplica e regista individualmente os SQL de `drizzle/` antes de carregar o Worker.
   Não aplicar migrações no arranque nem modificar migrações já publicadas.
 
@@ -102,6 +108,8 @@ documentado que cumpra a verificação de email e a ligação segura de contas (
 3. Usar o fluxo de publicação da skill Sites com o mesmo projeto: enviar o commit exato para o repositório
    de origem do Sites, empacotar `dist/`, guardar a versão e publicar para a audiência pública existente.
    O repositório de origem do Sites é distinto do GitHub; não usar `wrangler deploy` para atualizar o Sites.
+   No Windows, usar o Bash do Git e `TAR_OPTIONS=--force-local` no fluxo de empacotamento, para que o
+   `tar` não interprete `C:/...` como um servidor remoto. Nenhuma credencial vai na linha de comandos.
 4. Esperar pelo estado de publicação concluída e testar a origem pública com dados fictícios.
 5. Para rodar `BETTER_AUTH_SECRET`, substituir apenas esse segredo nas definições do Sites e publicar
    novamente uma versão guardada. As sessões existentes deixam de ser válidas; as palavras-passe e os dados

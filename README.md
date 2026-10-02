@@ -7,6 +7,8 @@
 
 **O fluxo de caixa das tuas contas nas casas de apostas — lido com a calma de um relatório.**
 
+[![Abrir o Tento](https://img.shields.io/badge/Abrir_o_Tento-online-2336C8)](https://tento.tomaspereira.chatgpt.site)
+
 [![CI](https://github.com/tpereira2005/tento/actions/workflows/ci.yml/badge.svg)](https://github.com/tpereira2005/tento/actions/workflows/ci.yml)
 ![Node 24](https://img.shields.io/badge/node-24-2336C8?logo=nodedotjs&logoColor=white)
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-2336C8?logo=typescript&logoColor=white)
@@ -79,14 +81,15 @@ Pré-visualização antes de guardar nada: linhas novas, já importadas, conflit
 | 7     | Relatório PDF                                            | ✅     |
 | 8     | Endurecimento e portabilidade                            | ✅     |
 
-Versão atual: **v1.0.0** — ver o [`CHANGELOG.md`](CHANGELOG.md).
+Versão atual: **v1.1.0** — ver o [`CHANGELOG.md`](CHANGELOG.md).
 
 Detalhe e critérios de "concluído" em [`docs/PLANO.md`](docs/PLANO.md).
 
 ## Alojamento
 
-Preparação para ChatGPT Sites (Cloudflare Workers + D1), com audiência pública e dados protegidos pelo
-login do Tento. A publicação e a verificação em produção ainda estão pendentes.
+[Tento publicado no ChatGPT Sites](https://tento.tomaspereira.chatgpt.site) (Cloudflare Workers + D1),
+com audiência pública: abrir o site não exige uma conta ChatGPT nem uma lista de acesso. Os dados ficam
+protegidos pelo login do Tento. O registo aceita apenas o email do dono configurado na plataforma.
 
 Autenticação: email + palavra-passe (mínimo de 12 caracteres). O SIWC do Sites não disponibiliza no
 contrato atual a integração OIDC e o email verificado exigidos para ligar contas no Better Auth (D-017).

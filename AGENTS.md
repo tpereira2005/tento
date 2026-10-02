@@ -20,10 +20,12 @@ e "meses positivos", nunca "ROI" ou "win rate".
 ## Estado atual
 
 Etapas **0** a **8** concluídas (fundações, núcleo de domínio, BD/API/autenticação, estrutura e definições,
-importação, painel, transações e comparar, relatório PDF, endurecimento e portabilidade). Versão **1.0.0**.
+importação, painel, transações e comparar, relatório PDF, endurecimento e portabilidade). Versão **1.1.0**.
 Atualiza esta linha no fim de cada etapa.
 
-Deploy 1.1.0 em preparação no ChatGPT Sites; publicação e verificação em produção pendentes (D-017).
+Publicado e verificado no ChatGPT Sites:
+[Abrir o Tento](https://tento.tomaspereira.chatgpt.site). Acesso público, dados protegidos pelo login da
+aplicação e registo limitado por `OWNER_EMAIL` (D-017).
 
 ## Comandos
 
@@ -34,6 +36,7 @@ pnpm check            # lint + typecheck + formato + testes + build (corre antes
 pnpm test             # testes unitários e de componentes (Vitest)
 pnpm test:coverage    # com cobertura
 pnpm e2e              # testes de ponta a ponta com Playwright e axe (faz build e corre o servidor real em :4173 com BD nova; ver scripts/e2e-server.mjs)
+pnpm e2e:worker       # suíte E2E contra workerd e D1 local
 pnpm format           # formata tudo com Prettier
 pnpm brand            # regenera logótipo, ícones e favicon a partir de scripts/brand.mjs
 pnpm build:sites      # artefacto Worker + SPA + migrações para o ChatGPT Sites

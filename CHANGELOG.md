@@ -3,14 +3,18 @@
 Todas as alterações relevantes do Tento. O formato segue [Keep a Changelog](https://keepachangelog.com/pt-PT/1.1.0/)
 e as versões seguem [SemVer](https://semver.org/lang/pt-PT/).
 
-## [1.1.0] — por publicar
+## [1.1.0] — 2026-10-02
 
 - Proteção opcional do registo com `OWNER_EMAIL`: outros emails são recusados mesmo com a base vazia.
-- Configuração do projeto ChatGPT Sites com D1 `DB`, audiência pública e segredos na plataforma.
+- [Tento publicado no ChatGPT Sites](https://tento.tomaspereira.chatgpt.site), com D1 `DB`, audiência
+  pública sem login de ChatGPT e segredos na plataforma. Migrações aplicadas antes da publicação.
 - `pnpm build:sites` empacota a entrada Worker existente, a SPA, os cabeçalhos e as migrações.
 - Documentação da integração ChatGPT: o contrato atual não fornece o fornecedor OIDC/email verificado
   necessário para ligar contas no Better Auth; mantém-se email + palavra-passe.
-- Publicação e verificação em produção pendentes.
+- Adaptador de ativos do Sites com CSP, HSTS, fallback da SPA, tipos MIME e cache. HTML com `no-transform`
+  para impedir a injeção de scripts pelo Cloudflare, preservando a CSP original.
+- Registo/login com scrypt, importação sintética, Painel, Transações, Comparar, PDF, exportação e eliminação
+  verificados no site público, sem falhas de CPU ou violações CSP. Dados e contas de teste eliminados.
 
 ## [1.0.0] — 2026-10-02
 

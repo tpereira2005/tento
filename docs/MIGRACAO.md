@@ -71,8 +71,8 @@ Variáveis obrigatórias em qualquer caso: `BETTER_AUTH_SECRET` (segredo, ≥ 32
 
 - Projeto registado em `.openai/hosting.json`, com a ligação lógica `d1: "DB"`. O Sites gere o recurso
   D1 real; o `database_id` de `wrangler.jsonc` continua a ser o marcador para desenvolvimento local.
-- Origem prevista: `https://tento.tomaspereira.chatgpt.site`. A publicação e a verificação em produção
-  ainda estão pendentes; o projeto foi configurado com acesso **público**, sem lista de visitantes.
+- Origem pública: [https://tento.tomaspereira.chatgpt.site](https://tento.tomaspereira.chatgpt.site).
+  Publicado e verificado em 2026-10-02, com acesso **público**, sem login ChatGPT nem lista de visitantes.
 - Variáveis de runtime nas definições do Sites: `BETTER_AUTH_URL` igual à origem acima, sem barra final;
   `OWNER_EMAIL` igual ao email do dono; `BETTER_AUTH_SECRET` marcado como segredo da plataforma.
 - `OWNER_EMAIL` é opcional. Se estiver definido, o hook de criação do utilizador do Better Auth recusa
@@ -101,6 +101,25 @@ fornecedor OIDC com client secret disponível para configurar no Better Auth. O 
 apresentação/contacto, sem um claim `email_verified` acessível. Assim, **o Tento mantém apenas email e
 palavra-passe**: não liga contas por cabeçalhos nem inventa um fornecedor. Rever quando existir um contrato
 documentado que cumpra a verificação de email e a ligação segura de contas (D-017). A CSP não foi alargada.
+
+### Verificação realizada
+
+`pnpm check`: 517 testes passaram; `pnpm e2e:worker`: 155 passaram e 42 foram ignorados conforme os
+projetos desktop/móvel. O build do Sites também é verificado no CI.
+
+No browser real, sem sessão de ChatGPT: outro email recusado com zero utilizadores, registo do dono,
+fecho do registo e login por email, importação de `tests/fixtures/csv/canonico.csv`, métricas conferidas,
+Painel, Transações, Comparar, PDF, exportação e eliminação. Claro, escuro e 390 px revistos, sem violações
+axe, CSP ou erros de página. Páginas e scripts levaram CSP, HSTS e `frame-ancestors 'none'`.
+
+O scrypt funcionou no registo e no login em produção (HTTP 200, sem falha por CPU); não foi necessário
+PBKDF2. A telemetria do Worker registou **87 ms de CPU no registo** e **75 ms no login** na verificação
+final (2026-10-02). Isto verifica a configuração atual do Sites, não promete compatibilidade com o plano gratuito de
+10 ms de CPU do Cloudflare direto.
+
+A conta temporária foi apagada e as dez tabelas de utilizador/domínio do D1 foram confirmadas vazias.
+O dono pode criar a sua conta de raiz e importar os CSVs reais diretamente na aplicação; nenhum CSV real
+foi usado ou publicado.
 
 ### Voltar a publicar e rodar os segredos
 

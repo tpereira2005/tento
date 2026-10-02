@@ -2,7 +2,7 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
-## D-017 · Preparação do deploy público no ChatGPT Sites (2026-10-02)
+## D-017 · Deploy público no ChatGPT Sites (2026-10-02)
 
 - **Proteção antes da primeira conta:** `OWNER_EMAIL` opcional nas entradas Node e Worker, validado por
   `loadEnv`. O hook de criação do utilizador do Better Auth recusa outros emails com `registration_closed`,
@@ -16,8 +16,11 @@ Decisões técnicas e de produto, com o contexto e as alternativas consideradas.
   configuração OIDC/secret para Better Auth nem prova acessível de `email_verified`. O email é descrito para
   apresentação/contacto. Não se implementa uma ligação de contas alternativa sem essas garantias;
   mantém-se email + palavra-passe. Não se alarga a CSP nem se acrescenta um botão sem login funcional.
-- **Hash:** mantém-se scrypt do Better Auth. A adequação ao limite de CPU depende do teste no site real;
-  se houver falha por CPU, pedir aprovação para PBKDF2 WebCrypto antes de mudar (ver MIGRACAO).
+- **Hash:** mantém-se scrypt do Better Auth. Registo e login passaram no site real com HTTP 200 e sem
+  falha por CPU. A telemetria final do Worker mediu 87 ms no registo e 75 ms no login (tempo de CPU,
+  não latência do browser). Não foi necessário PBKDF2. Esta verificação é específica da configuração atual do Sites;
+  não é uma garantia para o plano gratuito de 10 ms de CPU do Cloudflare direto. Se o limite mudar e
+  aparecer uma falha por CPU, pedir aprovação antes de trocar o hash (ver MIGRACAO).
 - **Build específico:** o primeiro deploy confirmou que o Sites ignorava `_headers` e o fallback de
   `wrangler.jsonc`: ativos sem CSP e endereços internos com 404. `pnpm build:sites` embute os ativos no
   Worker gerado, sem `dist/client` no pacote. `entry/sites.ts` aplica os mesmos `securityHeaders`, cache,
@@ -28,7 +31,9 @@ Decisões técnicas e de produto, com o contexto e as alternativas consideradas.
   pela CSP. O HTML do adaptador leva `Cache-Control: no-cache, no-transform`, que
   [impede essa injeção segundo o Cloudflare](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/).
   Não se acrescenta `unsafe-inline`, nonce ou exceção à CSP para scripts da plataforma.
-- **Estado:** projeto e variáveis configurados; publicação e validação de produção pendentes.
+- **Estado:** [publicado](https://tento.tomaspereira.chatgpt.site), com migrações e variáveis da plataforma.
+  Fluxos, PDF, cabeçalhos e CSP verificados no browser; conta e dados fictícios apagados. As dez tabelas
+  de utilizador/domínio do D1 foram confirmadas vazias, prontas para a conta do dono.
 
 ## D-016 · Entrada Cloudflare Workers + D1 (2026-10-01)
 

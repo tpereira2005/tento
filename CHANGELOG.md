@@ -3,6 +3,15 @@
 Todas as alterações relevantes do Tento. O formato segue [Keep a Changelog](https://keepachangelog.com/pt-PT/1.1.0/)
 e as versões seguem [SemVer](https://semver.org/lang/pt-PT/).
 
+## [1.1.0] — por publicar
+
+- Proteção opcional do registo com `OWNER_EMAIL`: outros emails são recusados mesmo com a base vazia.
+- Configuração do projeto ChatGPT Sites com D1 `DB`, audiência pública e segredos na plataforma.
+- `pnpm build:sites` empacota a entrada Worker existente, a SPA, os cabeçalhos e as migrações.
+- Documentação da integração ChatGPT: o contrato atual não fornece o fornecedor OIDC/email verificado
+  necessário para ligar contas no Better Auth; mantém-se email + palavra-passe.
+- Publicação e verificação em produção pendentes.
+
 ## [1.0.0] — 2026-10-02
 
 Primeira versão completa: as 9 etapas do [plano](docs/PLANO.md).

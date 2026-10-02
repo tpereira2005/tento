@@ -23,10 +23,18 @@ export interface TestClient {
 export async function createTestApp(
   registration: RegistrationMode = 'first-user-only',
   rateLimit: BetterAuthRateLimitOptions = { enabled: false },
+  ownerEmail?: string,
 ) {
   const { db, client } = await createLibsqlDb(':memory:');
   await migrateLibsql(db, MIGRATIONS);
-  const auth = createAuth({ db, secret: TEST_SECRET, baseURL: TEST_ORIGIN, registration, rateLimit });
+  const auth = createAuth({
+    db,
+    secret: TEST_SECRET,
+    baseURL: TEST_ORIGIN,
+    registration,
+    rateLimit,
+    ownerEmail,
+  });
   const clock = { now: new Date('2026-06-15T12:00:00Z') };
   const app = createApp({ db, auth, now: () => clock.now });
 

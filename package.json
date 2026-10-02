@@ -16,6 +16,7 @@
     "worker:dev": "pnpm build && wrangler d1 migrations apply DB --local && wrangler dev",
     "start": "tsx src/server/entry/node.ts --production",
     "build": "vite build",
+    "build:sites": "node scripts/build-sites.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",

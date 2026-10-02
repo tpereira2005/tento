@@ -2,6 +2,27 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-017 · Preparação do deploy público no ChatGPT Sites (2026-10-02)
+
+- **Proteção antes da primeira conta:** `OWNER_EMAIL` opcional nas entradas Node e Worker, validado por
+  `loadEnv`. O hook de criação do utilizador do Better Auth recusa outros emails com `registration_closed`,
+  independentemente do fornecedor e de existirem utilizadores. Remove espaços e ignora maiúsculas.
+  Mantém-se o fecho após a primeira conta e o comportamento anterior quando a variável não existe.
+- **Público com dados privados:** audiência pública no Sites, sem lista de acesso. O login da aplicação
+  continua a proteger a API e os dados. A ligação lógica `DB` fica no manifesto; o Sites gere o D1 real.
+- **Login ChatGPT:** a [OpenAI confirma o SIWC no Sites](https://help.openai.com/en/articles/20001410-sign-in-with-chatgpt),
+  mas o contrato técnico disponível (plugin Sites 0.1.75, `references/authentication.md` e
+  `app/chatgpt-auth.ts` do starter) expõe um fluxo do dispatcher e cabeçalhos de identidade; não fornece
+  configuração OIDC/secret para Better Auth nem prova acessível de `email_verified`. O email é descrito para
+  apresentação/contacto. Não se implementa uma ligação de contas alternativa sem essas garantias;
+  mantém-se email + palavra-passe. Não se alarga a CSP nem se acrescenta um botão sem login funcional.
+- **Hash:** mantém-se scrypt do Better Auth. A adequação ao limite de CPU depende do teste no site real;
+  se houver falha por CPU, pedir aprovação para PBKDF2 WebCrypto antes de mudar (ver MIGRACAO).
+- **Build específico:** `pnpm build:sites` adapta o formato do artefacto (`dist/client`, `dist/server/index.js`,
+  manifesto e migrações) usando a entrada Worker existente. `src/core`, `src/web` e repositórios da BD
+  não mudam. O build Node/local continua independente.
+- **Estado:** projeto e variáveis configurados; publicação e validação de produção pendentes.
+
 ## D-016 · Entrada Cloudflare Workers + D1 (2026-10-01)
 
 - **Duas entradas, um só código:** `src/server/entry/node.ts` (SQLite/libSQL) e `src/server/entry/worker.ts`

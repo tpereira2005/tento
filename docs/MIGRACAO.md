@@ -66,6 +66,48 @@ O ChatGPT Sites corre sobre Workers + D1, por isso o plano é o mesmo. O que pod
 Variáveis obrigatórias em qualquer caso: `BETTER_AUTH_SECRET` (segredo, ≥ 32 caracteres) e
 `BETTER_AUTH_URL` (origem pública).
 
+## Configuração do Tento no Sites
+
+- Projeto registado em `.openai/hosting.json`, com a ligação lógica `d1: "DB"`. O Sites gere o recurso
+  D1 real; o `database_id` de `wrangler.jsonc` continua a ser o marcador para desenvolvimento local.
+- Origem prevista: `https://tento.tomaspereira.chatgpt.site`. A publicação e a verificação em produção
+  ainda estão pendentes; o projeto foi configurado com acesso **público**, sem lista de visitantes.
+- Variáveis de runtime nas definições do Sites: `BETTER_AUTH_URL` igual à origem acima, sem barra final;
+  `OWNER_EMAIL` igual ao email do dono; `BETTER_AUTH_SECRET` marcado como segredo da plataforma.
+- `OWNER_EMAIL` é opcional. Se estiver definido, o hook de criação do utilizador do Better Auth recusa
+  qualquer outro email com `registration_closed`, mesmo com zero utilizadores e em qualquer fornecedor.
+  A comparação remove espaços e ignora maiúsculas. Sem esta variável mantém-se o comportamento anterior.
+  Depois da primeira conta, o registo continua fechado. Apagar essa conta volta a permitir apenas o dono.
+- `pnpm build:sites` compila a SPA em `dist/client/`, incluindo `_headers`, e empacota a entrada Worker
+  existente em `dist/server/index.js` com `nodejs_compat`. Copia o manifesto e as migrações para
+  `dist/.openai/`. O build local/Node (`pnpm build`) mantém o formato anterior.
+- O Sites aplica e regista individualmente os SQL de `drizzle/` antes de carregar o Worker.
+  Não aplicar migrações no arranque nem modificar migrações já publicadas.
+
+### Autenticação verificada na plataforma
+
+A [documentação oficial](https://help.openai.com/en/articles/20001410-sign-in-with-chatgpt) confirma
+«Sign in with ChatGPT» no Sites. O contrato técnico do plugin Sites 0.1.75 descreve um fluxo gerido pelo
+dispatcher (`/signin-with-chatgpt`, `/callback` e cabeçalhos `oai-authenticated-user-*`), e não um
+fornecedor OIDC com client secret disponível para configurar no Better Auth. O email é descrito para
+apresentação/contacto, sem um claim `email_verified` acessível. Assim, **o Tento mantém apenas email e
+palavra-passe**: não liga contas por cabeçalhos nem inventa um fornecedor. Rever quando existir um contrato
+documentado que cumpra a verificação de email e a ligação segura de contas (D-017). A CSP não foi alargada.
+
+### Voltar a publicar e rodar os segredos
+
+1. Trabalhar num ramo próprio, preservar `.openai/hosting.json` e gerar migrações novas com
+   `pnpm db:generate` se o esquema mudar. Rever o SQL; nunca reescrever migrações aplicadas.
+2. Correr `pnpm check`, `pnpm e2e:worker` e `pnpm build:sites`.
+3. Usar o fluxo de publicação da skill Sites com o mesmo projeto: enviar o commit exato para o repositório
+   de origem do Sites, empacotar `dist/`, guardar a versão e publicar para a audiência pública existente.
+   O repositório de origem do Sites é distinto do GitHub; não usar `wrangler deploy` para atualizar o Sites.
+4. Esperar pelo estado de publicação concluída e testar a origem pública com dados fictícios.
+5. Para rodar `BETTER_AUTH_SECRET`, substituir apenas esse segredo nas definições do Sites e publicar
+   novamente uma versão guardada. As sessões existentes deixam de ser válidas; as palavras-passe e os dados
+   mantêm-se. Nunca copiar segredos para o manifesto, GitHub, chat ou notas de release.
+6. Se mudar o domínio, alterar `BETTER_AUTH_URL` para a origem exata do browser e voltar a publicar.
+
 ## Limites a conhecer
 
 - **CPU por pedido:** o Better Auth guarda as palavras-passe com scrypt, que gasta CPU de propósito. No plano

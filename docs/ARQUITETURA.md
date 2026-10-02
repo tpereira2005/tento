@@ -42,15 +42,18 @@ Ver `docs/PLANO.md` §4. Resumo: `bookmaker` (casa), `profile` (perfil), `wallet
 
 ## Portabilidade
 
-| Peça          | Local                               | Cloudflare / ChatGPT Sites            | Outro alojamento |
-| ------------- | ----------------------------------- | ------------------------------------- | ---------------- |
-| Frontend      | Vite dev / `vite preview`           | ativos estáticos do Worker            | qualquer CDN     |
-| API           | Hono em Node                        | Hono em Workers                       | Node, Bun, Deno  |
-| Base de dados | ficheiro SQLite                     | D1                                    | Turso / libSQL   |
-| Autenticação  | Better Auth (email + palavra-passe) | idem, + «Sign in with ChatGPT» (OIDC) | idem             |
+| Peça          | Local                               | Cloudflare / ChatGPT Sites                       | Outro alojamento |
+| ------------- | ----------------------------------- | ------------------------------------------------ | ---------------- |
+| Frontend      | Vite dev / `vite preview`           | ativos estáticos do Worker                       | qualquer CDN     |
+| API           | Hono em Node                        | Hono em Workers                                  | Node, Bun, Deno  |
+| Base de dados | ficheiro SQLite                     | D1                                               | Turso / libSQL   |
+| Autenticação  | Better Auth (email + palavra-passe) | Better Auth (email + palavra-passe; OWNER_EMAIL) | idem             |
 
 Entradas: `src/server/entry/node.ts` (Node + SQLite) e `src/server/entry/worker.ts` (Workers + D1), com o
 mesmo `createApp`. Passos e limites para o alojamento final em [`MIGRACAO.md`](MIGRACAO.md); decisão em D-016.
+
+O projeto do ChatGPT Sites está configurado em `.openai/hosting.json` com D1 `DB` e acesso público;
+publicação e validação em produção ainda pendentes. A limitação da integração SIWC está registada em D-017.
 
 ## API (`/api`)
 

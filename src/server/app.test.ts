@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadEnv } from './env';
 import { createTestApp, TEST_ORIGIN, TEST_PASSWORD } from './test-app';
+import { countUsers } from './db/repos';
 
 describe('env', () => {
   const base = { BETTER_AUTH_SECRET: 'x'.repeat(32) };
@@ -22,9 +23,54 @@ describe('env', () => {
   it('lê a porta como número', () => {
     expect(loadEnv({ ...base, PORT: '9000' }).PORT).toBe(9000);
   });
+
+  it('normaliza OWNER_EMAIL e aceita a variável ausente ou vazia', () => {
+    expect(loadEnv({ ...base, OWNER_EMAIL: ' Ana @Exemplo.TEST ' }).OWNER_EMAIL).toBe('ana@exemplo.test');
+    expect(loadEnv(base).OWNER_EMAIL).toBeUndefined();
+    expect(loadEnv({ ...base, OWNER_EMAIL: '  ' }).OWNER_EMAIL).toBeUndefined();
+    expect(() => loadEnv({ ...base, OWNER_EMAIL: 'email-invalido' })).toThrow(/OWNER_EMAIL/);
+  });
 });
 
 describe('autenticação e registo', () => {
+  it.each(['first-user-only', 'open'] as const)(
+    'OWNER_EMAIL recusa outro email com zero utilizadores (%s)',
+    async (registration) => {
+      const t = await createTestApp(registration, { enabled: false }, ' Ana @EXEMPLO.test ');
+      const res = await t.raw('POST', '/api/auth/sign-up/email', {
+        email: 'rui@exemplo.test',
+        name: 'Rui',
+        password: TEST_PASSWORD,
+      });
+      expect(res.status).toBe(403);
+      expect(await res.json()).toMatchObject({ code: 'registration_closed' });
+      expect(await countUsers(t.db)).toBe(0);
+      await t.signUp('ANA@exemplo.test');
+      expect(await countUsers(t.db)).toBe(1);
+    },
+  );
+
+  it('OWNER_EMAIL mantém o fecho após a primeira conta e protege a reabertura', async () => {
+    const t = await createTestApp('first-user-only', { enabled: false }, 'ana@exemplo.test');
+    const owner = await t.signUp('ana@exemplo.test');
+    const second = await t.raw('POST', '/api/auth/sign-up/email', {
+      email: 'rui@exemplo.test',
+      name: 'Rui',
+      password: TEST_PASSWORD,
+    });
+    expect(second.status).toBe(403);
+    expect(await second.json()).toMatchObject({ code: 'registration_closed' });
+    expect((await owner.req('DELETE', '/api/me', { password: TEST_PASSWORD })).status).toBe(204);
+    expect(await countUsers(t.db)).toBe(0);
+    const outsider = await t.raw('POST', '/api/auth/sign-up/email', {
+      email: 'rui@exemplo.test',
+      name: 'Rui',
+      password: TEST_PASSWORD,
+    });
+    expect(outsider.status).toBe(403);
+    expect(await outsider.json()).toMatchObject({ code: 'registration_closed' });
+    await t.signUp('ana@exemplo.test');
+  });
   it('GET /api/setup é público e reflete o estado do registo', async () => {
     const t = await createTestApp();
     const before = await t.raw('GET', '/api/setup');

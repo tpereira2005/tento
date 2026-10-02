@@ -29,6 +29,7 @@ async function main() {
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     registration: 'first-user-only',
+    ownerEmail: env.OWNER_EMAIL,
   });
 
   const server = new Hono();

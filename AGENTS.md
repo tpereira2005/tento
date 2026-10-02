@@ -23,6 +23,8 @@ Etapas **0** a **8** concluídas (fundações, núcleo de domínio, BD/API/auten
 importação, painel, transações e comparar, relatório PDF, endurecimento e portabilidade). Versão **1.0.0**.
 Atualiza esta linha no fim de cada etapa.
 
+Deploy 1.1.0 em preparação no ChatGPT Sites; publicação e verificação em produção pendentes (D-017).
+
 ## Comandos
 
 ```bash
@@ -34,6 +36,7 @@ pnpm test:coverage    # com cobertura
 pnpm e2e              # testes de ponta a ponta com Playwright e axe (faz build e corre o servidor real em :4173 com BD nova; ver scripts/e2e-server.mjs)
 pnpm format           # formata tudo com Prettier
 pnpm brand            # regenera logótipo, ícones e favicon a partir de scripts/brand.mjs
+pnpm build:sites      # artefacto Worker + SPA + migrações para o ChatGPT Sites
 pnpm test:real        # valida os CSVs reais de TENTO_REAL_CSV_DIR (pasta fora do repo; só local)
 ```
 

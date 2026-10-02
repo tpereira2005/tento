@@ -83,7 +83,23 @@ Versão atual: **v1.0.0** — ver o [`CHANGELOG.md`](CHANGELOG.md).
 
 Detalhe e critérios de "concluído" em [`docs/PLANO.md`](docs/PLANO.md).
 
-## Começar
+## Alojamento
+
+Preparação para ChatGPT Sites (Cloudflare Workers + D1), com audiência pública e dados protegidos pelo
+login do Tento. A publicação e a verificação em produção ainda estão pendentes.
+
+Autenticação: email + palavra-passe (mínimo de 12 caracteres). O SIWC do Sites não disponibiliza no
+contrato atual a integração OIDC e o email verificado exigidos para ligar contas no Better Auth (D-017).
+
+Variáveis nas definições do Sites: `BETTER_AUTH_URL` (origem pública https, sem barra final),
+`BETTER_AUTH_SECRET` (segredo aleatório, pelo menos 32 caracteres) e `OWNER_EMAIL` (email do dono).
+`OWNER_EMAIL` é opcional no código, mas deve ser definido antes de publicar uma instância vazia:
+só esse email poderá criar conta. O registo fecha depois da primeira conta.
+
+Build: `pnpm build:sites`. Atualizações, migrações e rotação dos segredos em
+[`docs/MIGRACAO.md`](docs/MIGRACAO.md).
+
+## Desenvolvimento local
 
 ```bash
 pnpm install

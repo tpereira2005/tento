@@ -88,7 +88,7 @@ run('node_modules/wrangler/bin/wrangler.js', [
   '--config',
   '.wrangler/sites-build.json',
   '--outdir',
-  'dist/server',
+  resolve(output, 'server'),
 ]);
 renameSync(resolve(output, 'server/sites-entry.js'), resolve(output, 'server/index.js'));
 mkdirSync(resolve(output, '.openai'), { recursive: true });

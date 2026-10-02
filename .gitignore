@@ -13,6 +13,9 @@ blob-report/
 # ambiente e segredos
 .env
 .env.*
+.dev.vars
+.dev.vars.*
+.wrangler/
 !.env.example
 
 # dados reais — NUNCA entram no repositório (ver AGENTS.md)

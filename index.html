@@ -11,19 +11,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Tento</title>
-    <script>
-      // Aplica o tema antes do primeiro desenho para evitar o piscar entre claro e escuro.
-      (function () {
-        var theme;
-        try {
-          theme = localStorage.getItem('tento:tema');
-        } catch (e) {}
-        if (theme !== 'light' && theme !== 'dark') {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        document.documentElement.dataset.theme = theme;
-      })();
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

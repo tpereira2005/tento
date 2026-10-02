@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext, type Download, type Page } from '@playwright/test';
 import { formatCents } from '../../src/core/format';
 import { demoRows, DEMO_WALLETS, type DemoWalletKey } from '../../src/server/db/demo-dataset';
-import { expectNoAxeViolations, setTheme } from './helpers';
+import { expectNoAxeViolations, setTheme, watchCsp } from './helpers';
 import { norm, readPdfText } from './pdf-text';
 import { shot } from './shots';
 
@@ -102,6 +102,7 @@ test.describe('Relatórios', () => {
   });
 
   test('gera o PDF do âmbito completo e o ficheiro tem o conteúdo certo', async ({ page }) => {
+    const cspViolations = watchCsp(page);
     await page.goto('/relatorios');
     await ready(page);
     await page.getByRole('radio', { name: 'Tudo' }).click();
@@ -130,6 +131,8 @@ test.describe('Relatórios', () => {
 
     await expect(page.getByRole('status')).toContainText('Relatório gerado: tento-relatorio-');
     await expect(page.getByRole('button', { name: 'Gerar PDF' })).toBeEnabled();
+    // a política de segurança (CSP) não bloqueou nada na geração do PDF
+    expect(cspViolations).toEqual([]);
   });
 
   test('o âmbito perfil + casa escolhido na página vai para o PDF', async ({ page }) => {

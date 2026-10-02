@@ -49,7 +49,8 @@ Ver `docs/PLANO.md` §4. Resumo: `bookmaker` (casa), `profile` (perfil), `wallet
 | Base de dados | ficheiro SQLite                     | D1                                    | Turso / libSQL   |
 | Autenticação  | Better Auth (email + palavra-passe) | idem, + «Sign in with ChatGPT» (OIDC) | idem             |
 
-Esta secção é completada na etapa 8 (migração).
+Entradas: `src/server/entry/node.ts` (Node + SQLite) e `src/server/entry/worker.ts` (Workers + D1), com o
+mesmo `createApp`. Passos e limites para o alojamento final em [`MIGRACAO.md`](MIGRACAO.md); decisão em D-016.
 
 ## API (`/api`)
 
@@ -61,10 +62,16 @@ Todas as rotas exceto `/auth/*` e `/setup` exigem sessão. Pedidos que alteram d
 | `/auth/*`                                | Better Auth (email e palavra-passe; registo fecha após o primeiro utilizador)         |
 | `GET /setup`                             | `{ registrationOpen }`                                                                |
 | `GET /me`, `PATCH /me/settings`          | utilizador e preferências                                                             |
+| `GET /me/export`                         | descarrega todos os dados do utilizador em JSON (`tento-dados-AAAA-MM-DD.json`)       |
+| `DELETE /me/data`                        | apaga todos os dados (corpo `{ "confirm": "APAGAR" }`); a conta mantém-se             |
+| `DELETE /me`                             | apaga a conta e tudo (corpo `{ "password" }`); termina a sessão                       |
 | `/bookmakers`, `/profiles`, `/wallets`   | casas, perfis e contas (listar, criar, renomear, apagar)                              |
 | `POST /imports/preview`, `POST /imports` | pré-visualizar e importar um CSV (lido e comparado sempre no servidor)                |
 | `GET /imports`, `POST /imports/:id/undo` | histórico e desfazer um import                                                        |
 | `/transactions`                          | página com filtros (keyset), criar, editar e apagar à mão                             |
 | `GET /stats/dashboard`                   | resumo, séries, sequências, mapa, repartições e destaques (calculados com `src/core`) |
+
+Todas as respostas levam cabeçalhos de segurança (CSP, HSTS em https, `frame-ancestors 'none'`…), definidos em
+`src/server/security.ts`; o build emite também `dist/_headers` com os mesmos valores.
 
 Desenvolvimento: `pnpm dev` arranca o Vite (5173) e a API (8787); o Vite encaminha `/api` para a API.

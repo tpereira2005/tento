@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { t } from '../../i18n';
 import { AccountSection } from './AccountSection';
+import { DataSection } from './DataSection';
 import { NamedListSection } from './NamedListSection';
 import { WalletsSection } from './WalletsSection';
 
@@ -25,6 +26,7 @@ export function DefinicoesPage() {
       <NamedListSection kind="profiles" announce={announce} />
       <WalletsSection announce={announce} />
       <AccountSection announce={announce} />
+      <DataSection announce={announce} />
       <div role="status" aria-live="polite" aria-label={s.announcements} className="sr-only">
         {notice}
       </div>

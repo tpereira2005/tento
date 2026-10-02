@@ -32,6 +32,8 @@ export function createAuth({ db, secret, baseURL, registration, rateLimit }: Aut
       schema: { user, session, account, verification },
     }),
     emailAndPassword: { enabled: true, minPasswordLength: 12, autoSignIn: true },
+    // Apagar a conta exige a palavra-passe (ver DELETE /api/me); sem e-mail de confirmação.
+    user: { deleteUser: { enabled: true } },
     rateLimit: rateLimit ?? { enabled: true, window: 60, max: 100 },
     advanced: { cookiePrefix: 'tento', useSecureCookies: secure },
     databaseHooks: {

@@ -1,0 +1,29 @@
+// Entrada Cloudflare Workers + D1 (ChatGPT Sites usa a mesma base). Ver docs/MIGRACAO.md.
+// Local: `pnpm worker:dev` (workerd + D1 em Miniflare, dados em .wrangler/, ignorado pelo git).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tento",
+  "main": "src/server/entry/worker.ts",
+  "compatibility_date": "2026-09-30",
+  // O Better Auth usa AsyncLocalStorage e outras APIs de Node disponíveis com esta flag.
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"],
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tento",
+      // Substituir pelo id real devolvido por `wrangler d1 create tento` antes do primeiro deploy.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle",
+    },
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:8787",
+  },
+  "observability": { "enabled": true },
+}

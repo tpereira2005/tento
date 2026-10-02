@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+/** `worker` corre a suíte contra a entrada Cloudflare Workers + D1 local; por omissão, Node + SQLite. */
+const target = process.env.TENTO_E2E_TARGET === 'worker' ? 'worker' : 'node';
+
 /** Sessão do dono criada por tests/e2e/auth.setup.ts; os testes com sessão começam daqui. */
 const OWNER_STATE = 'tests/e2e/.auth/owner.json';
 
@@ -34,9 +37,10 @@ export default defineConfig({
       use: { ...devices['Pixel 7'], storageState: OWNER_STATE },
     },
   ],
-  // O servidor REAL de produção (API + dist/) com uma base de dados nova; ver scripts/e2e-server.mjs.
+  // O servidor REAL de produção (API + dist/) com uma base de dados nova; ver scripts/e2e-server.mjs
+  // (Node + SQLite) e scripts/e2e-worker.mjs (workerd + D1).
   webServer: {
-    command: 'node scripts/e2e-server.mjs',
+    command: target === 'worker' ? 'node scripts/e2e-worker.mjs' : 'node scripts/e2e-server.mjs',
     url: 'http://localhost:4173/api/setup',
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

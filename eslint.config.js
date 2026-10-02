@@ -45,12 +45,14 @@ const noLocalTimeGetters = [
 export default tseslint.config(
   {
     ignores: [
+      '.wrangler/**',
       'dist',
       'coverage',
       'playwright-report',
       'test-results',
       'src/web/routeTree.gen.ts',
       'docs/design/**',
+      'public/**',
     ],
   },
   js.configs.recommended,

@@ -108,7 +108,7 @@ describe('commitImport', () => {
   });
 
   it('divide as inserções em blocos de INSERT_CHUNK_ROWS e grava todas as linhas', async () => {
-    expect(INSERT_CHUNK_ROWS).toBe(200);
+    expect(INSERT_CHUNK_ROWS).toBe(500);
     const n = INSERT_CHUNK_ROWS * 2 + 7;
     const rows = Array.from({ length: n }, (_, i) =>
       row(i + 2, `2026-01-${String((i % 28) + 1).padStart(2, '0')}`, 'deposit', i + 1, Math.floor(i / 28)),
@@ -116,6 +116,35 @@ describe('commitImport', () => {
     const r = await commitImport(t.db, t.userA, input(rows));
     expect(r.ok && r.value.rowsAdded).toBe(n);
     expect(await listTransactions(t.db, t.userA)).toHaveLength(n);
+  });
+
+  it('as linhas gravadas via JSON mantêm todos os campos e tipos', async () => {
+    const r = await commitImport(
+      t.db,
+      t.userA,
+      input([row(2, '2026-01-05', 'withdrawal', 12345, 0), row(3, '2026-01-05', 'deposit', 1, 1)]),
+    );
+    if (!r.ok) throw new Error('import falhou');
+    const res = await t.client.execute(
+      `select wallet_id, date, type, amount_cents, typeof(amount_cents) k, seq, source, import_batch_id, note,
+        created_at, updated_at from txn order by seq`,
+    );
+    expect(res.rows[0]).toMatchObject({
+      wallet_id: w.walletId,
+      date: '2026-01-05',
+      type: 'withdrawal',
+      amount_cents: 12345,
+      k: 'integer',
+      seq: 0,
+      source: 'csv',
+      import_batch_id: r.value.id,
+      note: null,
+    });
+    expect(res.rows[1]).toMatchObject({ type: 'deposit', amount_cents: 1, seq: 1 });
+    for (const x of res.rows) {
+      expect(Math.abs(Number(x.created_at) - Date.now())).toBeLessThan(60_000);
+      expect(x.updated_at).toBe(x.created_at);
+    }
   });
 
   it('import vazio cria só o lote', async () => {

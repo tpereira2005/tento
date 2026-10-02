@@ -36,6 +36,18 @@ describe('autenticação e registo', () => {
     expect(await after.json()).toEqual({ registrationOpen: false });
   });
 
+  it('as respostas da API levam os cabeçalhos de segurança', async () => {
+    const t = await createTestApp();
+    const res = await t.raw('GET', '/api/setup');
+    const csp = res.headers.get('content-security-policy') ?? '';
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("default-src 'self'");
+    expect(res.headers.get('x-frame-options')).toBe('DENY');
+    expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+    // a base de teste é http: sem HSTS
+    expect(res.headers.get('strict-transport-security')).toBeNull();
+  });
+
   it('o registo fecha depois do primeiro utilizador', async () => {
     const t = await createTestApp();
     await t.signUp('ana@exemplo.test');
@@ -167,7 +179,6 @@ describe('proteções transversais', () => {
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
     expect(res.headers.get('x-frame-options')).toBeTruthy();
     expect(res.headers.get('referrer-policy')).toBeTruthy();
-    expect(res.headers.get('strict-transport-security')).toBeTruthy();
   });
 
   it('413 acima de 64 KB fora dos imports e acima de 5 MB nos imports', async () => {

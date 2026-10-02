@@ -1,6 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { demoRows, DEMO_WALLETS, type DemoWalletKey } from '../../src/server/db/demo-dataset';
-import { expectNoAxeViolations, setTheme } from './helpers';
+import { expectNoAxeViolations, setTheme, watchCsp } from './helpers';
 import { shot } from './shots';
 
 /** Etiqueta única por execução: a BD é partilhada entre testes e projetos. */
@@ -82,6 +82,7 @@ test.describe('Painel', () => {
   });
 
   test('mostra os números do conjunto de demonstração', async ({ page }) => {
+    const cspViolations = watchCsp(page);
     await page.goto('/?periodo=tudo');
     await ready(page);
     await expect(page.getByRole('heading', { level: 1, name: 'Painel' })).toBeVisible();
@@ -129,6 +130,8 @@ test.describe('Painel', () => {
     // exportar PDF está disponível (a geração é testada em relatorios.spec.ts)
     await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeEnabled();
     await expect(page.getByRole('link', { name: 'Importar CSV' })).toHaveAttribute('href', '/importar');
+    // a política de segurança (CSP) não bloqueou nada (gráficos, fontes, tema inicial)
+    expect(cspViolations).toEqual([]);
   });
 
   test('o gráfico acumulado alterna para a tabela', async ({ page }) => {

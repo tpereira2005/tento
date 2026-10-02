@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { HTTPException } from 'hono/http-exception';
-import { secureHeaders } from 'hono/secure-headers';
 import type { TentoAuth } from './auth';
 import type { Db } from './db/client';
 import { countUsers, InvalidCursorError } from './db/repos';
@@ -11,6 +10,7 @@ import { importRoutes } from './routes/imports';
 import { meRoutes } from './routes/me';
 import { statsRoutes } from './routes/stats';
 import { transactionRoutes } from './routes/transactions';
+import { isHttps, securityHeadersMiddleware } from './security';
 
 export interface AppDeps {
   db: Db;
@@ -27,7 +27,7 @@ export function createApp({ db, auth, now = () => new Date() }: AppDeps) {
   const origin = new URL(auth.tento.baseURL).origin;
   const api = new Hono<AppEnv>().basePath('/api');
 
-  api.use('*', secureHeaders());
+  api.use('*', securityHeadersMiddleware({ https: isHttps(auth.tento.baseURL) }));
 
   const tooLarge = () => apiError(413, 'payload_too_large', 'O pedido é demasiado grande.');
   const importLimit = bodyLimit({ maxSize: IMPORT_LIMIT, onError: tooLarge });
@@ -61,7 +61,7 @@ export function createApp({ db, auth, now = () => new Date() }: AppDeps) {
     await next();
   });
 
-  api.route('/me', meRoutes());
+  api.route('/me', meRoutes(auth, now));
   api.route('/', catalogRoutes());
   api.route('/transactions', transactionRoutes());
   api.route('/imports', importRoutes());

@@ -2,6 +2,44 @@
 
 Decisões técnicas e de produto, com o contexto e as alternativas consideradas. A mais recente fica no topo.
 
+## D-016 · Entrada Cloudflare Workers + D1 (2026-10-01)
+
+- **Duas entradas, um só código:** `src/server/entry/node.ts` (SQLite/libSQL) e `src/server/entry/worker.ts`
+  (D1, ativos estáticos do Workers) montam o mesmo `createApp`. A suíte E2E corre contra as duas
+  (`pnpm e2e` e `pnpm e2e:worker`, esta com `wrangler dev`/workerd e um D1 local do Miniflare), também no CI.
+- **Limite de 100 parâmetros do D1:** em vez de baixar o `INSERT` multi-linha para 9 linhas por instrução
+  (centenas de consultas num import grande, acima do limite de consultas por pedido), as linhas de cada bloco
+  vão num único parâmetro JSON e entram com `INSERT … SELECT … FROM json_each(?)`: 7 parâmetros por instrução,
+  500 linhas por bloco, tudo no mesmo `db.batch`. Funciona igual em libSQL e D1. Escreve-se com
+  ``db.insert(txn).select(sql`…`)`` e não com ``db.run(sql`…`)``: no lote do D1 o Drizzle 0.45 falha com SQL cru com
+  parâmetros (`stmt` indefinido), erro que só apareceu ao correr os E2E na Worker.
+- **Migrações:** os mesmos ficheiros `drizzle/*.sql`; em Node aplica-os o migrador do Drizzle, no D1 o
+  `wrangler d1 migrations apply` (`migrations_dir: drizzle`). Cada lado regista as suas numa tabela própria.
+- **Segredos locais da Worker:** por ficheiro (`--env-file` / `.dev.vars`, ignorados pelo git); o `--var` da
+  linha de comandos substitui todas as `vars` do `wrangler.jsonc` e deixava o `BETTER_AUTH_URL` errado.
+- **Cabeçalhos na Worker:** os ficheiros estáticos levam o `dist/_headers` de produção (https, com HSTS) mesmo
+  no `wrangler dev` local; o E2E de segurança verifica essa variante quando corre contra a Worker.
+- **Risco conhecido:** o hash scrypt do Better Auth pode passar os 10 ms de CPU do plano gratuito do Workers;
+  ver docs/MIGRACAO.md.
+
+## D-015 · Cabeçalhos de segurança e direitos sobre os dados (2026-10-01)
+
+- **Uma só definição:** `src/server/security.ts` (sem `node:`) gera os cabeçalhos para o servidor Node (API e
+  `dist/`), para o Worker e, no build, para `dist/_headers` (plugin do Vite; os ficheiros estáticos do
+  Cloudflare não passam pelo Worker). HSTS e `upgrade-insecure-requests` só quando o endereço base é https.
+  O servidor de desenvolvimento do Vite não leva CSP (precisa de scripts inline para o HMR).
+- **CSP:** `script-src 'self' 'wasm-unsafe-eval'`: o PDF (@react-pdf) carrega o motor de layout yoga como
+  WebAssembly (base64 em `fetch('data:…')`, daí `connect-src 'self' data:`); sem isso a geração falha
+  (verificado no browser; os E2E falham com qualquer violação de CSP). Continua sem `unsafe-eval` nem scripts
+  inline: o único inline (tema inicial) passou para `public/theme-init.js`. `style-src 'unsafe-inline'` mantém-se porque React, Radix e os gráficos
+  escrevem atributos `style`; sem scripts inline o risco é baixo. `blob:` em `img-src` e `worker-src`.
+- **Exportar:** `GET /api/me/export` devolve JSON versionado (`format: tento-export`, `version: 1`) com
+  casas, perfis, contas, importações e transações; nunca palavras-passe, sessões nem tabelas do Better Auth.
+- **Apagar dados:** `DELETE /api/me/data` com `{ "confirm": "APAGAR" }` apaga tudo o que é de domínio num
+  `db.batch` atómico e mantém a conta. `DELETE /api/me` exige a palavra-passe (verificada pelo
+  `deleteUser` do Better Auth) e apaga a conta; o resto cai por `ON DELETE CASCADE`. Se for o único
+  utilizador, o registo volta a abrir (`countUsers = 0`): é o comportamento esperado numa instância de um dono.
+
 ## D-014 · Relatório PDF (2026-10-01)
 
 - **Fontes:** o @react-pdf não aceita fontes variáveis nem WOFF2; o PDF embute as versões estáticas WOFF da
